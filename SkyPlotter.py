@@ -1,8 +1,3 @@
-
-# coding: utf-8
-
-# In[38]:
-
 from astropy.io import fits
 import argparse, sys, os, urllib.request
 import numpy as np
@@ -15,34 +10,29 @@ get_ipython().magic('matplotlib inline')
 
 # We want the user to input the neutrino event's RA, DEC, and the radius of its error circle:
 
-#parser = argparse.ArgumentParser()
-#parser.add_argument('-r', '--RA', type = float, dest = 'RA', help = 'enter right ascension in degrees')
-#parser.add_argument('-d', '--DEC', type = float, dest = 'DEC', help = 'enter declination in degrees')
-#parser.add_argument('-e', '--ERR', type = float, dest = 'ERR', help = 'enter radius of the error circle in degrees')
+parser = argparse.ArgumentParser()
+parser.add_argument('-r', '--RA', type = float, dest = 'RA', help = 'enter right ascension in degrees')
+parser.add_argument('-d', '--DEC', type = float, dest = 'DEC', help = 'enter declination in degrees')
+parser.add_argument('-e', '--ERR', type = float, dest = 'ERR', help = 'enter radius of the error circle in degrees')
 
-#args = parser.parse_args()
+args = parser.parse_args()
 
 # Limit acceptable values of RA and DEC. 
 # It's possible to do this in argparse but I haven't found a good way yet.
 
-#if not(0.0 <= args.RA <= 360.0):
-#    print('Error: Right Ascension should be between 0 and 360 degrees')
-#    sys.exit()
+if not(0.0 <= args.RA <= 360.0):
+    print('Error: Right Ascension should be between 0 and 360 degrees')
+    sys.exit()
     
-#if not(-90.0 <= args.DEC <= 90.0):
-#    print('Error: Declination should be between -90 and 90 degrees')
-#    sys.exit()
+if not(-90.0 <= args.DEC <= 90.0):
+    print('Error: Declination should be between -90 and 90 degrees')
+    sys.exit()
 
-# Variables are easier to work with without the 'args.'
+ Variables are easier to work with without the 'args.'
 
-#RA = args.RA
-#DEC = args.DEC
-#ERR = args.ERR
-
-
-RA = 285.7
-DEC = 3.1
-ERR = 1.0
+RA = args.RA
+DEC = args.DEC
+ERR = args.ERR
 
 ######################################
 
@@ -229,9 +219,3 @@ plt.show()
 
 
 plt
-
-
-# In[ ]:
-
-
-
