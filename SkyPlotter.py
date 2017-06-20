@@ -1,10 +1,15 @@
+
+# coding: utf-8
+
+# In[38]:
+
 from astropy.io import fits
 import argparse, sys, os, urllib.request
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.visualization import astropy_mpl_style
 plt.style.use(astropy_mpl_style)
-#get_ipython().magic('matplotlib inline')
+get_ipython().magic('matplotlib inline')
 
 ######################################
 
@@ -79,147 +84,137 @@ def plotfits(URL, file_name, RA, DEC, ERR, marker):
     names = tbdata.field(0)
     RAs = tbdata.field(1)
     DECs = tbdata.field(2)
-    classes = tbdata.field(34)
+    if(marker == '3FGL'):
+        classes = tbdata.field(73)
+    if(marker == '2FHL'):
+        classes = tbdata.field(34)
     
     # Plot sources that are within the error circle:
     for i in range(len(names)):
         if(((RAs[i] - RA) ** 2 + (DECs[i] - DEC) ** 2) > (ERR ** 2)):
-            names[i] = 999.6
-            RAs[i] = 999.6
-            DECs[i] = 999.6
-            classes[i] = 999.6
+            names[i] = 'badcoord'
+            RAs[i] = 1000.0
+            DECs[i] = 1000.0
+            classes[i] = 'badcoord'
     
-    list(filter(lambda a: a != 999.6, names))
-    list(filter(lambda a: a != 999.6, RAs))
-    list(filter(lambda a: a != 999.6, DECs))
-    list(filter(lambda a: a != 999.6, classes))
+    names = list(filter(lambda a: a != 'badcoord', names))
+    RAs = list(filter(lambda a: a < 900.0, RAs))
+    DECs = list(filter(lambda a: a < 900.0, DECs))
+    classes = list(filter(lambda a: a != 'badcoord', classes))
     
-    srctype = np.zeros(len(names), dtype = 'str')
-    for i in range(len(names)):
-        srctype[i] = 'unknown source'
+    srctype = np.zeros(len(names), dtype = '52str')
     
     for i in range(len(names)):
         if((classes[i] == 'psr') or (classes[i] == 'PSR')):
             srctype[i] = 'pulsar'
-            plt.plot(RAs[i], DECs[i], c = 'b')
-        if(classes[i] == 'pwn'):
+            plt.scatter(RAs[i], DECs[i], c = 'b')
+        elif(classes[i] == 'pwn'):
             srctype[i] = 'psr wind nebula'
-            plt.plot(RAs[i], DECs[i], c = 'b')
-        if(classes[i] == 'snr'):
+            plt.scatter(RAs[i], DECs[i], c = 'b')
+        elif(classes[i] == 'snr'):
             srctype[i] = 'SNR'
-            plt.plot(RAs[i], DECs[i], c = 'g')
-        if(classes[i] == 'spp'):
+            plt.scatter(RAs[i], DECs[i], c = 'g')
+        elif(classes[i] == 'spp'):
             srctype[i] = 'SNR/PWN'
-            plt.plot(RAs[i], DECs[i], c = 'g')
-        if(classes[i] == 'hmb'):
+            plt.scatter(RAs[i], DECs[i], c = 'g')
+        elif(classes[i] == 'hmb'):
             srctype[i] = 'high-mass binary'
-            plt.plot(RAs[i], DECs[i], c = 'r')
-        if(classes[i] == 'bin'):
+            plt.scatter(RAs[i], DECs[i], c = 'r')
+        elif(classes[i] == 'bin'):
             srctype[i] = 'binary'
-            plt.plot(RAs[i], DECs[i], c = 'r')
-        if(classes[i] == 'sfr'):
+            plt.scatter(RAs[i], DECs[i], c = 'r')
+        elif(classes[i] == 'sfr'):
             srctype[i] = 'star-forming region'
-            plt.plot(RAs[i], DECs[i], c = 'c')
-        if((classes[i] == 'bll') or (classes[i] == 'bll-g') or (classes[i] == 'fsrq') or (classes[i] == 'bcu I') or (classes[i] == 'bcu II') or (classes[i] == 'bcu III')):
+            plt.scatter(RAs[i], DECs[i], c = 'c')
+        elif((classes[i] == 'bll') or (classes[i] == 'bll-g') or (classes[i] == 'fsrq') or (classes[i] == 'bcu I') or (classes[i] == 'bcu II') or (classes[i] == 'bcu III')):
             srctype[i] = blazar
-            plt.plot(RAs[i], DECs[i], c = 'm')
-        if((classes[i] == 'agn') or (classes[i] == 'bcu')):
+            plt.scatter(RAs[i], DECs[i], c = 'm')
+        elif((classes[i] == 'agn') or (classes[i] == 'bcu')):
             srctype[i] = 'AGN / active galaxy'
-            plt.plot(RAs[i], DECs[i], c = 'm')
-        if(classes[i] == 'rdg'):
+            plt.scatter(RAs[i], DECs[i], c = 'm')
+        elif(classes[i] == 'rdg'):
             srctype[i] = 'radio galaxy'
-            plt.plot(RAs[i], DECs[i], c = 'm')
-        if(classes[i] == 'rdg/bll'):
+            plt.scatter(RAs[i], DECs[i], c = 'm')
+        elif(classes[i] == 'rdg/bll'):
             srctype[i] = 'radio galaxy / BL Lac blazar'
-            plt.plot(RAs[i], DECs[i], c = 'm')
-        if(classes[i] == 'gal'):
+            plt.scatter(RAs[i], DECs[i], c = 'm')
+        elif(classes[i] == 'gal'):
             srctype[i] = 'normal galaxy (or part)'
-            plt.plot(RAs[i], DECs[i], c = 'y')
-        if(classes[i] == 'galclu'):
+            plt.scatter(RAs[i], DECs[i], c = 'y')
+        elif(classes[i] == 'galclu'):
             srctype[i] = 'galaxy cluster'
-            plt.plot(RAs[i], DECs[i], c = 'k')
-        if((classes[i] == 'nlsy1') or (classes[i] == 'sey')):
+            plt.scatter(RAs[i], DECs[i], c = 'k')
+        elif((classes[i] == 'nlsy1') or (classes[i] == 'sey')):
             srctype[i] = 'Seyfert galaxy'
-            plt.plot(RAs[i], DECs[i], c = 'm')
-        if(classes[i] == 'nov'):
+            plt.scatter(RAs[i], DECs[i], c = 'm')
+        elif(classes[i] == 'nov'):
             srctype[i] = 'nova'
-            plt.plot(RAs[i], DECs[i], c = 'w')
-        if(classes[i] == 'glc'):
+            plt.scatter(RAs[i], DECs[i], c = 'w')
+        elif(classes[i] == 'glc'):
             srctype[i] = 'globular cluster'
-            plt.plot(RAs[i], DECs[i], c = 'black')
-        if((classes[i] == 'css') or (classes[i] == 'ssrq')):
+            plt.scatter(RAs[i], DECs[i], c = 'black')
+        elif((classes[i] == 'css') or (classes[i] == 'ssrq')):
             srctype[i] = 'quasar'
-            plt.plot(RAs[i], DECs[i], c = 'm')
-        if(classes[i] == 'sbg'):
+            plt.scatter(RAs[i], DECs[i], c = 'm')
+        elif(classes[i] == 'sbg'):
             srctype[i] = 'starburst galaxy'
-            plt.plot(RAs[i], DECs[i], c = 'aqua')
-        if(classes[i] == 'spp'):
+            plt.scatter(RAs[i], DECs[i], c = 'aqua')
+        elif(classes[i] == 'spp'):
             srctype[i] = 'special case - potential association with SNR or PWN'
-            plt.plot(RAs[i], DECs[i], c = '0.75')
+            plt.scatter(RAs[i], DECs[i], c = 'purple')
+        else:
+            srctype[i] = 'unknown source'
+            plt.scatter(RAs[i], DECs[i], c = '0.75')
     
     # Here, we will make sure that these arrays won't be overwritten next time the function is called with a different catalog
     # Also, by setting the new arrays as global variables, we can then use them later in the program
     
-    if hasattr(marker, '3FGL'):
-        global names_3FGL
-        global RAs_3FGL
-        global DECs_3FGL
-        global classes_3FGL
-        global srctype_3FGL
-        names_3FGL = names
-        RAs_3FGL = RAs
-        DECs_3FGL = DECs
-        classes_3FGL = classes
-        srctype_3FGL = srctype
-        del names
-        del RAs
-        del DECs
-        del classes
-        del srctype
-    if hasattr(marker, '2FHL'):
-        global names_2FHL
-        global RAs_2FHL
-        global DECs_2FHL
-        global classes_2FHL
-        global srctype_2FHL
-        names_2FHL = names
-        RAs_2FHL = RAs
-        DECs_2FHL = DECs
-        classes_2FHL = classes
-        srctype_2FHL = srctype
-        del names
-        del RAs
-        del DECs
-        del classes
-        del srctype
-    if hasattr(marker, 'TEV'):
-        global names_TEV
-        global RAs_TEV
-        global DECs_TEV
-        global classes_TEV
-        global srctype_TEV
-        names_TEV = names
-        RAs_TEV = RAs
-        DECs_TEV = DECs
-        classes_TEV = classes
-        srctype_TEV = srctype
-        del names
-        del RAs
-        del DECs
-        del classes
-        del srctype
+    if (marker == '3FGL'):
+        global names3FGL
+        global RAs3FGL
+        global DECs3FGL
+        global classes3FGL
+        global srctype3FGL
+        names3FGL = names
+        RAs3FGL = RAs
+        DECs3FGL = DECs
+        classes3FGL = classes
+        srctype3FGL = srctype
+    if (marker == '2FHL'):
+        global names2FHL
+        global RAs2FHL
+        global DECs2FHL
+        global classes2FHL
+        global srctype2FHL
+        names2FHL = names
+        RAs2FHL = RAs
+        DECs2FHL = DECs
+        classes2FHL = classes
+        srctype2FHL = srctype
+    if (marker == 'TEV'):
+        global namesTEV
+        global RAsTEV
+        global DECsTEV
+        global classesTEV
+        global srctypeTEV
+        namesTEV = names
+        RAsTEV = RAs
+        DECsTEV = DECs
+        classesTEV = classes
+        srctypeTEV = srctype
     
 ######################################
 
-#def printout(RA, DEC, ERR, names_3FGL, names_2FHL, names_TEV, RAs_3FGL, RAs_2FHL, RAs_TEV, DECs_3FGL, DECs_2FHL, DECs_TEV, srctype_3FGL, srctype_2FHL, srctype_TEV):
-def printout(RA, DEC, ERR, names_3FGL, names_2FHL, RAs_3FGL, RAs_2FHL, DECs_3FGL, DECs_2FHL, srctype_3FGL, srctype_2FHL):    
-    names = names_3FGL + names_2FHL
-    RAs = RAs_3FGL + RAs_2FHL
-    DECs = DECs_3FGL + DECs_2FHL
-    srctype = srctype_3FGL + srctype_2FHL
+#def printout(RA, DEC, ERR, names3FGL, names2FHL, namesTEV, RAs3FGL, RAs2FHL, RAsTEV, DECs3FGL, DECs2FHL, DECsTEV, srctype3FGL, srctype2FHL, srctypeTEV):
+def printout(RA, DEC, ERR, names3FGL, names2FHL, RAs3FGL, RAs2FHL, DECs3FGL, DECs2FHL, srctype3FGL, srctype2FHL):    
+    names = np.append(names3FGL, names2FHL)
+    RAs = np.append(RAs3FGL, RAs2FHL)
+    DECs = np.append(DECs3FGL, DECs2FHL)
+    srctype = np.append(srctype3FGL, srctype2FHL)
     
     print('NEUTRINO SOURCE CANDIDATES WITHIN', ERR, 'DEGREES OF: RA', RA, 'DEC', DEC)
-    
+    print('')
+    print()
     
 ######################################
 ######################################
@@ -228,7 +223,15 @@ ploterrcirc(RA, DEC, ERR)
 plotfits('https://fermi.gsfc.nasa.gov/ssc/data/access/lat/4yr_catalog/gll_psc_v16.fit', './3FGLCat.fit', RA, DEC, ERR, '3FGL')
 plotfits('https://fermi.gsfc.nasa.gov/ssc/data/access/lat/2FHL/gll_psch_v09.fit', './2FHLCat.fit', RA, DEC, ERR, '2FHL')
 #plotfits('', './TEVCat.fit', RA, DEC, ERR, 'TEV')
-#printout(RA, DEC, ERR, names_3FGL, names_2FHL, RAs_3FGL, RAs_2FHL, DECs_3FGL, DECs_2FHL, srctype_3FGL, srctype_2FHL)
-print(names_3FGL)
-
+printout(RA, DEC, ERR, names3FGL, names2FHL, RAs3FGL, RAs2FHL, DECs3FGL, DECs2FHL, srctype3FGL, srctype2FHL)
 plt.show()
+
+
+
+plt
+
+
+# In[ ]:
+
+
+
