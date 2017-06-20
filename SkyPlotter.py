@@ -27,7 +27,7 @@ if not(-90.0 <= args.DEC <= 90.0):
     print('Error: Declination should be between -90 and 90 degrees')
     sys.exit()
 
- Variables are easier to work with without the 'args.'
+# Variables are easier to work with without the 'args.'
 
 RA = args.RA
 DEC = args.DEC
