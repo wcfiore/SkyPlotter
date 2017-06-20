@@ -214,7 +214,3 @@ plotfits('https://fermi.gsfc.nasa.gov/ssc/data/access/lat/2FHL/gll_psch_v09.fit'
 #plotfits('', './TEVCat.fit', RA, DEC, ERR, 'TEV')
 printout(RA, DEC, ERR, names3FGL, names2FHL, RAs3FGL, RAs2FHL, DECs3FGL, DECs2FHL, srctype3FGL, srctype2FHL)
 plt.show()
-
-
-
-plt
