@@ -4,8 +4,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.visualization import astropy_mpl_style
 plt.style.use(astropy_mpl_style)
+from tabulate import tabulate
+
+# The following parameters are set this way so that the legend 
+# is not cut off when the program is run from a terminal:
+
+from matplotlib import rcParams     
+rcParams.update({'figure.subplot.right': 0.73})
+rcParams.update({'figure.subplot.left': 0.15})
+rcParams.update({'figure.subplot.top': 0.89})
+rcParams.update({'figure.subplot.bottom': 0.22})
+
+# For running in ipython notebook (comment out otherwise):
+#%matplotlib inline
 
 ######################################
+
+# This part not needed if running from ipython notebook
+# When using ipython notebook, set RA, DEC, ERR manually
 
 # We want the user to input the neutrino event's RA, DEC, and the radius of its error circle:
 
@@ -19,11 +35,11 @@ args = parser.parse_args()
 # Limit acceptable values of RA and DEC. 
 # It's possible to do this in argparse but I haven't found a good way yet.
 
-if not(0.0 <= args.RA <= 360.0):
+#if not(0.0 <= args.RA <= 360.0):
     print('Error: Right Ascension should be between 0 and 360 degrees')
     sys.exit()
     
-if not(-90.0 <= args.DEC <= 90.0):
+#if not(-90.0 <= args.DEC <= 90.0):
     print('Error: Declination should be between -90 and 90 degrees')
     sys.exit()
 
@@ -34,6 +50,8 @@ DEC = args.DEC
 ERR = args.ERR
 
 ######################################
+
+# This function plots the error circle of the neutrino event
 
 def ploterrcirc(RA, DEC, ERR):
     # Set the size of the grid to be 1.5x the size of the error circle
@@ -61,6 +79,10 @@ def ploterrcirc(RA, DEC, ERR):
     plt.plot(RA, DEC, 'x', color = 'r')
     
 ######################################
+
+# This function reads downloads and data from fits files and sorts the sources by type.
+# It is called once per catalog, and requires some fine tuning based on which catalog
+# is being read
 
 def readfits(URL, file_name, RA, DEC, ERR, marker):
     # Check if the catalog exists already. If not, download it from the website and save it:
@@ -192,121 +214,80 @@ def readfits(URL, file_name, RA, DEC, ERR, marker):
     for i in range(len(names)):
         if((classes[i] == 'psr') or (classes[i] == 'PSR')):
             srctype[i] = 'pulsar'
-            #plt.scatter(RAs[i], DECs[i], c = 'b', label = srctype[i])
-            
             psrRA.append(RAs[i])
             psrDEC.append(DECs[i])
         elif(classes[i] == 'pwn'):
             srctype[i] = 'psr wind nebula'
-            #plt.scatter(RAs[i], DECs[i], c = 'lavender', label = srctype[i])
-            
             pwnRA.append(RAs[i])
             pwnDEC.append(DECs[i])
         elif(classes[i] == 'snr'):
             srctype[i] = 'SNR'
-            #plt.scatter(RAs[i], DECs[i], c = 'darkred', label = srctype[i])
-            
             snrRA.append(RAs[i])
             snrDEC.append(DECs[i])
         elif(classes[i] == 'spp'):
             srctype[i] = 'SNR/PWN'
-            #plt.scatter(RAs[i], DECs[i], c = 'g', label = srctype[i])
-            
             sppRA.append(RAs[i])
             sppDEC.append(DECs[i])
         elif(classes[i] == 'hmb'):
             srctype[i] = 'high-mass binary'
-            #plt.scatter(RAs[i], DECs[i], c = 'r', label = srctype[i])
-            
             hmbRA.append(RAs[i])
             hmbDEC.append(DECs[i])
         elif(classes[i] == 'bin'):
             srctype[i] = 'binary'
-            #plt.scatter(RAs[i], DECs[i], c = 'pink', label = srctype[i])
-            
             binRA.append(RAs[i])
             binDEC.append(DECs[i])
         elif(classes[i] == 'sfr'):
             srctype[i] = 'star-forming region'
-            #plt.scatter(RAs[i], DECs[i], c = 'c', label = srctype[i])
-            
             sfrRA.append(RAs[i])
             sfrDEC.append(DECs[i])
         elif((classes[i] == 'bll') or (classes[i] == 'bll-g') or (classes[i] == 'fsrq') or (classes[i] == 'bcu I') or (classes[i] == 'bcu II') or (classes[i] == 'bcu III')):
             srctype[i] = 'blazar'
-            #plt.scatter(RAs[i], DECs[i], c = 'm', label = srctype[i])
-            
             bzrRA.append(RAs[i])
             bzrDEC.append(DECs[i])
         elif((classes[i] == 'agn') or (classes[i] == 'bcu')):
             srctype[i] = 'AGN / active galaxy'
-            #plt.scatter(RAs[i], DECs[i], c = 'indigo', label = srctype[i])
-            
             agnRA.append(RAs[i])
             agnDEC.append(DECs[i])
         elif(classes[i] == 'rdg'):
             srctype[i] = 'radio galaxy'
-            #plt.scatter(RAs[i], DECs[i], c = 'lime', label = srctype[i])
-            
             rdgRA.append(RAs[i])
             rdgDEC.append(DECs[i])
         elif(classes[i] == 'rdg/bll'):
             srctype[i] = 'radio galaxy / BL Lac blazar'
-            #plt.scatter(RAs[i], DECs[i], c = 'aqua', label = srctype[i])
-            
             rgbRA.append(RAs[i])
             rgbDEC.append(DECs[i])
         elif(classes[i] == 'gal'):
             srctype[i] = 'normal galaxy (or part)'
-            #plt.scatter(RAs[i], DECs[i], c = 'y', label = srctype[i])
-            
             galRA.append(RAs[i])
             galDEC.append(DECs[i])
         elif(classes[i] == 'galclu'):
             srctype[i] = 'galaxy cluster'
-            #plt.scatter(RAs[i], DECs[i], c = 'k', label = srctype[i])
-            
             gclRA.append(RAs[i])
             gclDEC.append(DECs[i])
         elif((classes[i] == 'nlsy1') or (classes[i] == 'sey')):
             srctype[i] = 'Seyfert galaxy'
-            #plt.scatter(RAs[i], DECs[i], c = 'tan', label = srctype[i])
-            
             seyRA.append(RAs[i])
             seyDEC.append(DECs[i])
         elif(classes[i] == 'nov'):
             srctype[i] = 'nova'
-            #plt.scatter(RAs[i], DECs[i], c = 'w', label = srctype[i])
-            
             novRA.append(RAs[i])
             novDEC.append(DECs[i])
         elif(classes[i] == 'glc'):
             srctype[i] = 'globular cluster'
-            #plt.scatter(RAs[i], DECs[i], c = 'black', label = srctype[i])
-            
             glcRA.append(RAs[i])
             glcDEC.append(DECs[i])
         elif((classes[i] == 'css') or (classes[i] == 'ssrq')):
             srctype[i] = 'quasar'
-            #plt.scatter(RAs[i], DECs[i], c = 'darkviolet', label = srctype[i])
-            
             qsrRA.append(RAs[i])
             qsrDEC.append(DECs[i])
         elif(classes[i] == 'sbg'):
             srctype[i] = 'starburst galaxy'
-            #plt.scatter(RAs[i], DECs[i], c = 'maroon', label = srctype[i])
-            
             sbgRA.append(RAs[i])
             sbgDEC.append(DECs[i])
         else:
-            srctype[i] = 'unknown source'
-            #plt.scatter(RAs[i], DECs[i], c = 'dimgray', label = srctype[i])
-                
+            srctype[i] = 'unknown gamma ray source'
             unkRA.append(RAs[i])
             unkDEC.append(DECs[i])
-    
-            
-    
     
     # Here, we will make sure that these arrays won't be overwritten next time the function is called with a different catalog
     # Also, by setting the new arrays as global variables, we can then use them later in the program
@@ -345,9 +326,9 @@ def readfits(URL, file_name, RA, DEC, ERR, marker):
         classesTEV = classes
         srctypeTEV = srctype
         
-    
-        
 ######################################
+
+# This function plots the source candidates and color codes them based on type
 
 def plotsrcs(psrRA, psrDEC, pwnRA, pwnDEC, snrRA, snrDEC, sppRA, sppDEC, hmbRA, hmbDEC, binRA, binDEC, sfrRA, sfrDEC, bzrRA, bzrDEC, agnRA, agnDEC, rdgRA, rdgDEC, rgbRA, rgbDEC, galRA, galDEC, gclRA, gclDEC, seyRA, seyDEC, novRA, novDEC, glcRA, glcDEC, qsrRA, qsrDEC, sbgRA, sbgDEC, unkRA, unkDEC):
     
@@ -388,9 +369,12 @@ def plotsrcs(psrRA, psrDEC, pwnRA, pwnDEC, snrRA, snrDEC, sppRA, sppDEC, hmbRA, 
     if(sbgRA != []):
         plt.scatter(sbgRA, sbgDEC, c = 'maroon', label = 'starburst galaxy')
     if(unkRA != []):    
-        plt.scatter(unkRA, unkDEC, c = 'dimgray', label = 'unknown source')
+        plt.scatter(unkRA, unkDEC, c = 'dimgray', label = 'unknown gamma ray source')
 
 ######################################
+
+# This function outputs a table onto the command line listing the sources
+# inside the error circle, along with their coordinates, name, type, and flux.
 
 #def printout(RA, DEC, ERR, names3FGL, names2FHL, namesTEV, RAs3FGL, RAs2FHL, RAsTEV, DECs3FGL, DECs2FHL, DECsTEV, srctype3FGL, srctype2FHL, srctypeTEV):
 def printout(RA, DEC, ERR, names3FGL, names2FHL, RAs3FGL, RAs2FHL, DECs3FGL, DECs2FHL, srctype3FGL, srctype2FHL):    
@@ -399,10 +383,25 @@ def printout(RA, DEC, ERR, names3FGL, names2FHL, RAs3FGL, RAs2FHL, DECs3FGL, DEC
     DECs = np.append(DECs3FGL, DECs2FHL)
     srctype = np.append(srctype3FGL, srctype2FHL)
     
+    table = np.zeros(len(names), '20str, f, f, 30str')
+    headers = ('Name & Catalog', 'RA', 'DEC', 'Type of Source')
+    for i in range(len(names)):
+        table[i] = (names[i], RAs[i], DECs[i], srctype[i])
+    
     print('NEUTRINO SOURCE CANDIDATES WITHIN', ERR, 'DEGREES OF: RA', RA, 'DEC', DEC)
     print('')
+    print(tabulate(table, headers))
     
 ######################################
+######################################
+
+# This part is for manual input. Should be commented out if 
+# it is intended to use command-line input from a terminal.
+
+#RA = 270.0
+#DEC = 0.0
+#ERR = 9.5
+
 ######################################
 
 ploterrcirc(RA, DEC, ERR)
