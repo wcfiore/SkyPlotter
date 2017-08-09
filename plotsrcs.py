@@ -57,8 +57,8 @@ def plotsrcs(psrRA, psrDEC, psreflux, pwnRA, pwnDEC, pwneflux, snrRA, snrDEC, sn
     if(snsRA != []):    
         plt.scatter(snsRA, snsDEC, c = 'olive', s = np.multiply(unkeflux, 10 ** 13) + 25, label = 'SNR / Shell')
     if(RAsFAVA != []):
-        plt.scatter(RAsFAVA, DECsFAVA, c = 'lightseagreen', s = 50, label = 'FAVA Flare')
+        plt.scatter(RAsFAVA, DECsFAVA, c = 'lightseagreen', s = 80, marker = 'X', label = 'FAVA Flare')
     if(nbgRA != []):
-        plt.scatter(nbgRA, nbgDEC, c = 'palevioletred', s = 45 - nbgbmag, label = 'Nearby Galaxy')
+        plt.scatter(nbgRA, nbgDEC, c = 'palevioletred', s = 80 - nbgbmag, marker = '*', label = 'Nearby Galaxy')
     if((psrRA != []) or (pwnRA != []) or (snrRA != []) or (sppRA != []) or (hmbRA != []) or (binRA != []) or (sfrRA != []) or (bzrRA != []) or (agnRA != []) or (rdgRA != []) or (rgbRA != []) or (galRA != []) or (gclRA != []) or (seyRA != []) or (novRA != []) or (glcRA != []) or (qsrRA != []) or (sbgRA != []) or (unkRA != []) or (stbRA != []) or (xrbRA != []) or (snmRA != []) or (sblRA != []) or (friRA != []) or (wrsRA != []) or (snsRA != []) or (RAsFAVA != []) or nbgRA != []):
         plt.legend(bbox_to_anchor = (1.04, 1), loc = "upper left")
