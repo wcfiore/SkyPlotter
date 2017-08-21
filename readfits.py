@@ -7,16 +7,33 @@ import numpy as np
 # It is called once per catalog, and requires some fine tuning based on 
 # which catalog is being read
 
-def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, psrRA, psrDEC, psreflux, pwnRA, pwnDEC, pwneflux, snrRA, snrDEC, snreflux, sppRA, sppDEC, sppeflux, hmbRA, hmbDEC, hmbeflux, bzrRA, bzrDEC, bzreflux, rdgRA, rdgDEC, rdgeflux, gclRA, gclDEC, gcleflux, agnRA, agnDEC, agneflux, binRA, binDEC, bineflux, sfrRA, sfrDEC, sfreflux, galRA, galDEC, galeflux, rgbRA, rgbDEC, rgbeflux, seyRA, seyDEC, seyeflux, novRA, novDEC, noveflux, glcRA, glcDEC, glceflux, qsrRA, qsrDEC, qsreflux, sbgRA, sbgDEC, sbgeflux, unkRA, unkDEC, unkeflux):
+def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, pltRA, pltDEC, srctype, pltflux, labels):
     
     # Check if the catalog exists already. If not, download it from the website and save it:
     if((os.path.isfile(file_name) == False) and (URL != 'nope')):
         urllib.request.urlretrieve(URL, file_name)
     
     if((os.path.isfile(file_name) == False) and (URL == 'nope')):
-        print('Could not find ' + marker + ' Catalog')
-        names, RAs, DECs, eflux, pflux, srctype, rshift = [], [], [], [], [], [], []
-        return names, RAs, DECs, eflux, pflux, srctype, rshift
+        print('***********************************')
+        print('Could not find catalog file for ' + marker + '.')
+        if((marker == 'ROSAT') or (marker == 'XMM')):
+            if(marker == 'ROSAT'):
+                print('Download the file at the URL: https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3Drosnepagn&Action=More+Options')
+                print("Check the fields for 'name', 'ra', 'dec', 'flux_corr', and 'redshift'. Limit results to 'no limit'. Select FITS output and press search. The file must have the name 'ROSAT.fits' and must be located in the same directory as this program.")
+            else:
+                print('Download the file at the URL: https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3Dcaixa&Action=More+Options')
+                print("Check the fields for 'name', 'ra', 'dec', 'hb_flux', and 'redshift'. Limit results to 'no limit'. Select FITS output and press search. The file must have the name 'CAIXA_XMM.fits' and must be located in the same directory as this program.")
+            print('***********************************')
+            names, RAs, DECs, eflux, pflux, rshift = [], [], [], [], [], [], []
+            return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels
+        elif(marker == 'neargalcat'):
+            print('https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3Dneargalcat&Action=More+Options')
+            print("Check the fields for 'name', 'ra', 'dec', 'bmag', 'distance', and 'morph_type'. Limit results to 'no limit'. Select FITS output and press search. The file must have the name 'neargalcat.fits' and must be located in the same directory as this program.")
+            names, RAs, DECs, bmag, dist, galtype = [], [], [], [], [], []
+            return names, RAs, DECs, bmag, dist, galtype
+        else:
+            names, RAs, DECs, eflux, pflux, rshift = [], [], [], [], [], [], []
+            return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels
     
     # Read data from file:
     hdulist = fits.open(file_name)
@@ -101,111 +118,130 @@ def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, psrRA, 
         pflux = list(filter(lambda a: a >= -10.0, pflux))
         rshift = list(filter(lambda a: a != 'bad', rshift))
         classes = list(filter(lambda a: a != 'bad', classes))
-        srctype = np.zeros(len(names), dtype = '52str')
+        
         for i in range(len(names)):
             if((classes[i] == 'psr') or (classes[i] == 'PSR')):
-                srctype[i] = 'pulsar'
-                psrRA.append(RAs[i])
-                psrDEC.append(DECs[i])
-                psreflux.append(eflux[i])
+                labels.append('pulsar')
+                srctype.append('psr')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'pwn'):
-                srctype[i] = 'psr wind nebula'
-                pwnRA.append(RAs[i])
-                pwnDEC.append(DECs[i])
-                pwneflux.append(eflux[i])
+                labels.append('psr wind nebula')
+                srctype.append('pwn')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'snr'):
-                srctype[i] = 'SNR'
-                snrRA.append(RAs[i])
-                snrDEC.append(DECs[i])
-                snreflux.append(eflux[i])
+                labels.append('SNR')
+                srctype.append('snr')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'spp'):
-                srctype[i] = 'SNR/PWN'
-                sppRA.append(RAs[i])
-                sppDEC.append(DECs[i])
-                sppeflux.append(eflux[i])
+                labels.append('SNR/PWN')
+                srctype.append('spp')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'hmb'):
-                srctype[i] = 'high-mass binary'
-                hmbRA.append(RAs[i])
-                hmbDEC.append(DECs[i])
-                hmbeflux.append(eflux[i])
+                labels.append('high-mass binary')
+                srctype.append('hmb')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'bin'):
-                srctype[i] = 'binary'
-                binRA.append(RAs[i])
-                binDEC.append(DECs[i])
-                bineflux.append(eflux[i])
+                labels.append('binary')
+                srctype.append('bin')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'sfr'):
-                srctype[i] = 'star-forming region'
-                sfrRA.append(RAs[i])
-                sfrDEC.append(DECs[i])
-                sfreflux.append(eflux[i])
+                labels.append('star-forming region')
+                srctype.append('sfr')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif((classes[i] == 'bll') or (classes[i] == 'bll-g') or (classes[i] == 'fsrq') or (classes[i] == 'bcu I') or (classes[i] == 'bcu II') or (classes[i] == 'bcu III')):
-                srctype[i] = 'blazar'
-                bzrRA.append(RAs[i])
-                bzrDEC.append(DECs[i])
-                bzreflux.append(eflux[i])
+                labels.append('blazar')
+                srctype.append('bzr')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif((classes[i] == 'agn') or (classes[i] == 'bcu') or (classes[i] == 'AGN')):
-                srctype[i] = 'AGN / active galaxy'
-                agnRA.append(RAs[i])
-                agnDEC.append(DECs[i])
-                agneflux.append(eflux[i])
+                labels.append('AGN / active galaxy')
+                srctype.append('agn')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'rdg'):
-                srctype[i] = 'radio galaxy'
-                rdgRA.append(RAs[i])
-                rdgDEC.append(DECs[i])
-                rdgeflux.append(eflux[i])
+                labels.append('radio galaxy')
+                srctype.append('rdg')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'rdg/bll'):
-                srctype[i] = 'radio galaxy / BL Lac blazar'
-                rgbRA.append(RAs[i])
-                rgbDEC.append(DECs[i])
-                rgbeflux.append(eflux[i])
+                labels.append('radio galaxy / BL Lac blazar')
+                srctype.append('rzr')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'gal'):
-                srctype[i] = 'normal galaxy (or part)'
-                galRA.append(RAs[i])
-                galDEC.append(DECs[i])
-                galeflux.append(eflux[i])
+                labels.append('normal galaxy (or part)')
+                srctype.append('gal')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'galclu'):
-                srctype[i] = 'galaxy cluster'
-                gclRA.append(RAs[i])
-                gclDEC.append(DECs[i])
-                gcleflux.append(eflux[i])
+                labels.append('galaxy cluster')
+                srctype.append('gcl')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif((classes[i] == 'nlsy1') or (classes[i] == 'sey')):
-                srctype[i] = 'Seyfert galaxy'
-                seyRA.append(RAs[i])
-                seyDEC.append(DECs[i])
-                seyeflux.append(eflux[i])
+                labels.append('Seyfert galaxy')
+                srctype.append('sey')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'nov'):
-                srctype[i] = 'nova'
-                novRA.append(RAs[i])
-                novDEC.append(DECs[i])
-                noveflux.append(eflux[i])
+                labels.append('nova')
+                srctype.append('nov')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'glc'):
-                srctype[i] = 'globular cluster'
-                glcRA.append(RAs[i])
-                glcDEC.append(DECs[i])
-                glceflux.append(eflux[i])
+                labels.append('globular cluster')
+                srctype.append('glc')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif((classes[i] == 'css') or (classes[i] == 'ssrq')):
-                srctype[i] = 'quasar'
-                qsrRA.append(RAs[i])
-                qsrDEC.append(DECs[i])
-                qsreflux.append(eflux[i])
+                labels.append('quasar')
+                srctype.append('qsr')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             elif(classes[i] == 'sbg'):
-                srctype[i] = 'starburst galaxy'
-                sbgRA.append(RAs[i])
-                sbgDEC.append(DECs[i])
-                sbgeflux.append(eflux[i])
+                labels.append('starburst galaxy')
+                srctype.append('sbg')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             else:
-                srctype[i] = 'unknown g-ray src'
-                unkRA.append(RAs[i])
-                unkDEC.append(DECs[i])
-                unkeflux.append(eflux[i])
+                labels.append('unknown g-ray src')
+                srctype.append('unk')
+                pltRA.append(RAs[i])
+                pltDEC.append(DECs[i])
+                pltflux.append(eflux[i])
             
     else:
         dist = list(filter(lambda a: a >= -10.0, dist))
         galtype = list(filter(lambda a: a != 'bad', galtype))    
 
     if((marker == 'ROSAT') or (marker == 'XMM')):
-        return names, RAs, DECs, eflux, pflux, srctype, rshift, agnRA, agnDEC, agneflux
+        return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels
     elif(marker == 'neargalcat'):
         return names, RAs, DECs, bmag, dist, galtype
     else:
-        return names, RAs, DECs, eflux, pflux, srctype, rshift, psrRA, psrDEC, psreflux, pwnRA, pwnDEC, pwneflux, snrRA, snrDEC, snreflux, sppRA, sppDEC, sppeflux, hmbRA, hmbDEC, hmbeflux, bzrRA, bzrDEC, bzreflux, rdgRA, rdgDEC, rdgeflux, gclRA, gclDEC, gcleflux, agnRA, agnDEC, agneflux, binRA, binDEC, bineflux, sfrRA, sfrDEC, sfreflux, galRA, galDEC, galeflux, rgbRA, rgbDEC, rgbeflux, seyRA, seyDEC, seyeflux, novRA, novDEC, noveflux, glcRA, glcDEC, glceflux, qsrRA, qsrDEC, qsreflux, sbgRA, sbgDEC, sbgeflux, unkRA, unkDEC, unkeflux
+        return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels

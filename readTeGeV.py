@@ -4,10 +4,23 @@ import os, urllib.request
 import numpy as np
 
 
-def readTeGeV(file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, sppRA, sppDEC, sppeflux, bzrRA, bzrDEC, bzreflux, snrRA, snrDEC, snreflux, stbRA, stbDEC, stbeflux, unkRA, unkDEC, unkeflux, xrbRA, xrbDEC, xrbeflux, agnRA, agnDEC, agneflux, snmRA, snmDEC, snmeflux, pwnRA, pwnDEC, pwneflux, sblRA, sblDEC, sbleflux, friRA, friDEC, frieflux, binRA, binDEC, bineflux, wrsRA, wrsDEC, wrseflux, snsRA, snsDEC, snseflux, glcRA, glcDEC, glceflux):
+def readTeGeV(file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, srctype, pltflux, labels):
+    
+    if(os.path.isfile(file_name) == False):
+        print('***********************************')
+        print('Could not find catalog file for TeGeVCat')
+        print('Download the file at the URL: http://www.asdc.asi.it/tgevcat/')
+        print("Make sure the units for RA and DEC are in degrees, flux is in E-12 cm2/s, and distance is in redshift." +\
+              "These are changed with the dropdown menus at the top of the page. Scroll all the way down and make sure" +\
+              "the only fields that are checked are 'TEV NAME', 'TYPE', 'RA (J2000)', DEC (J2000)', 'INTEGRAL FLUX', and" +\
+              "'DISTANCE'. Click on 'Update Table Columns'. Scrolling back up, click on 'Raw Text Format'. Copy and paste" +\
+              "the contents of the page into a text file. The file must have the name 'TeGeVCat.dat' and must be located" +\
+              "in the same directory as this program.")
+        print('***********************************')
     
     # Read data from file:
-    names, classes, RAs, DECs, pflux, rshift = np.loadtxt(file_name, dtype = 'S20', delimiter = ' | ', skiprows = 1, usecols = (1,2,3,4,5,6), unpack = True)
+    names, classes, RAs, DECs, pflux, rshift = np.loadtxt(file_name, dtype = 'S20', delimiter = ' | ', skiprows = 1, \
+                                                          usecols = (1,2,3,4,5,6), unpack = True)
     
     names = names.astype('str')
     classes = classes.astype('str')
@@ -44,83 +57,96 @@ def readTeGeV(file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, sppRA, sppDEC, sppe
     pflux = list(filter(lambda a: a >= 0.0, pflux))
     rshift = list(filter(lambda a: a != 'bad', rshift))
     
-    srctype = np.zeros(len(names), dtype = '52str')
-    
     for i in range(len(names)):
         if(classes[i] == 'PWN/SNR'):
-            srctype[i] = 'SNR/PWN'
-            sppRA.append(RAs[i])
-            sppDEC.append(DECs[i])
-            sppeflux.append(eflux[i])
+            labels.append('SNR/PWN')
+            srctype.append('pwr')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif((classes[i] == 'HBL') or (classes[i] == 'LBL') or (classes[i] == 'IBL') or (classes[i] == 'Blazar') or (classes[i] == 'FSRQ')):
-            srctype[i] = 'blazar'
-            bzrRA.append(RAs[i])
-            bzrDEC.append(DECs[i])
-            bzreflux.append(eflux[i])
+            labels.append('blazar')
+            srctype.append('bzr')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'SNR'):
-            srctype[i] = 'SNR'
-            snrRA.append(RAs[i])
-            snrDEC.append(DECs[i])
-            snreflux.append(eflux[i])
+            labels.append('SNR')
+            srctype.append('snr')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'Starburst'):
-            srctype[i] = 'starburst'
-            stbRA.append(RAs[i])
-            stbDEC.append(DECs[i])
-            stbeflux.append(eflux[i])
+            labels.append('starburst')
+            srctype.append('sbs')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'UNID'):
-            srctype[i] = 'unknown g-ray src'
+            labels.append('unknown g-ray src')
+            srctype.append('unk')
             unkRA.append(RAs[i])
             unkDEC.append(DECs[i])
             unkeflux.append(eflux[i])
         elif(classes[i] == 'XRB'):
-            srctype[i] = 'XRB'
-            xrbRA.append(RAs[i])
-            xrbDEC.append(DECs[i])
-            xrbeflux.append(eflux[i])
+            labels.append('XRB')
+            srctype.append('xrb')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'AGN'):
-            srctype[i] = 'AGN / active galaxy'
-            agnRA.append(RAs[i])
-            agnDEC.append(DECs[i])
-            agneflux.append(eflux[i])
+            labels.append('AGN / active galaxy')
+            srctype.append('agn')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'SNR/MC'):
-            srctype[i] = 'SNR / molecular cloud'
-            snmRA.append(RAs[i])
-            snmDEC.append(DECs[i])
-            snmeflux.append(eflux[i])
+            labels.append('SNR / molecular cloud')
+            srctype.append('smc')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif((classes[i] == 'PWN') or (classes[i] == 'PWN/UNID')):
-            srctype[i] = 'pulsar wind nebula'
-            pwnRA.append(RAs[i])
-            pwnDEC.append(DECs[i])
-            pwneflux.append(eflux[i])
+            labels.append('pulsar wind nebula')
+            srctype.append('pwn')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'Superbubble'):
-            srctype[i] = 'superbubble'
-            sblRA.append(RAs[i])
-            sblDEC.append(DECs[i])
-            sbleflux.append(eflux[i])
+            labels.append('superbubble')
+            srctype.append('sbb')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'FRI'):
-            srctype[i] = 'FRI'
-            friRA.append(RAs[i])
-            friDEC.append(DECs[i])
-            frieflux.append(eflux[i])
+            labels.append('FRI')
+            srctype.append('fri')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'BIN'):
-            srctype[i] = 'binary'
-            binRA.append(RAs[i])
-            binDEC.append(DECs[i])
-            bineflux.append(eflux[i])
+            labels.append('binary')
+            srctype.append('bin')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'WR/MSC'):
-            srctype[i] = 'Wolf-Rayet star'
-            wrsRA.append(RAs[i])
-            wrsDEC.append(DECs[i])
-            wrseflux.append(eflux[i])
+            labels.append('Wolf-Rayet star')
+            srctype.append('wrs')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'SNR/SHELL'):
-            srctype[i] = 'SNR / Shell'
-            snsRA.append(RAs[i])
-            snsDEC.append(DECs[i])
-            snseflux.append(eflux[i])
+            labels.append('SNR / Shell')
+            srctype.append('sns')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
         elif(classes[i] == 'GC'):
-            srctype[i] = 'globular cluster'
-            glcRA.append(RAs[i])
-            glcDEC.append(DECs[i])
-            glceflux.append(eflux[i])
+            labels.append('globular cluster')
+            srctype.append('glc')
+            pltRA.append(RAs[i])
+            pltDEC.append(DECs[i])
+            pltflux.append(eflux[i])
             
-    return names, RAs, DECs, eflux, pflux, srctype, rshift, sppRA, sppDEC, sppeflux, bzrRA, bzrDEC, bzreflux, snrRA, snrDEC, snreflux, stbRA, stbDEC, stbeflux, unkRA, unkDEC, unkeflux, xrbRA, xrbDEC, xrbeflux, agnRA, agnDEC, agneflux, snmRA, snmDEC, snmeflux, pwnRA, pwnDEC, pwneflux, sblRA, sblDEC, sbleflux, friRA, friDEC, frieflux, binRA, binDEC, bineflux, wrsRA, wrsDEC, wrseflux, snsRA, snsDEC, snseflux, glcRA, glcDEC, glceflux
+    return names, RAs, DECs, eflux, pflux, labels, rshift, pltRA, pltDEC, srctype, pltflux, labels

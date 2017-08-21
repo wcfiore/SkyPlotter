@@ -85,9 +85,9 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
     
     for i in range(len(RAs2)):
         if(RAs2[i] > 360):
-            RAs2 -= 360
+            RAs2[i] -= 360
         elif(RAs2[i] < 0):
-            RAs2 += 360
+            RAs2[i] += 360
 
     RAs2 = np.around(RAs2, decimals = 3)
 
@@ -101,8 +101,7 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
         
     leflux = lefluxFAVA
     heflux = hefluxFAVA
-   
-   
+    
     table2 = np.zeros(len(names2), dtype = '20str, f, f, f, f, 30str, 30str')
     
     headers2 = ('Name', 'RA', 'DEC', 'LE Flux', 'HE Flux', 'Start Time', 'Stop Time')
@@ -124,12 +123,15 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
         print('STEADY SOURCES:')
         print(tabulate(table, headers))
         print('')
-        print("Note: RA and DEC are given in degrees. Energy flux is given in ergs/cm^2/s. Photon flux is given in ph/cm^2/s. Size of markers increases linearly with energy flux for sources with an energy flux value.")
+        print("Note: RA and DEC are given in degrees. Energy flux is given in ergs/cm^2/s. " + \
+              "Photon flux is given in ph/cm^2/s. Size of markers increases linearly with " + \
+              "energy flux for sources with an energy flux value.")
     if(len(table2) != 0):
         print('TRANSIENTS:')
         print(tabulate(table2, headers2))
         print('')
-        print("Note: RA and DEC are given in degrees. LE Flux is 100-800 MeV, HE Flux is 0.8-300 GeV. Fluxes are given in ph/cm^2/s.")
+        print("Note: RA and DEC are given in degrees. LE Flux is 100-800 MeV, HE Flux is 0.8-300 GeV. " + \ 
+              "Fluxes are given in ph/cm^2/s.")
     if(len(table3) != 0):
         print(tabulate(table3, headers3))
         print('')

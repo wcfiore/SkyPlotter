@@ -2,6 +2,7 @@ from astropy.time import Time
 import sys, os, urllib.request, time, stat
 import numpy as np
 import sqlite3
+import math
 
 
 def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
@@ -40,6 +41,7 @@ def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
     
     conn.close()
     
+    
     RAs = RAs.astype('float')
     for i in range(len(RAs)):
         if(RAs[i] < RA1):
@@ -55,34 +57,23 @@ def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
     t1 = t1 + 978307200
     t2 = t2 + 978307200
     
-    test1 = Time(t1, format = 'unix', scale = 'utc')
-    test2 = Time(t2, format = 'unix', scale = 'utc')
+    t1 = Time(t1, format = 'unix', scale = 'utc')
+    t2 = Time(t2, format = 'unix', scale = 'utc')
     
     leflux = leflux.astype('float')
     heflux = heflux.astype('float')
     
     # We want to only plot sources that are within the error circle:
-    for i in range(len(flareID)):
-        if((((RAs[i] - RA) ** 2 + (DECs[i] - DEC) ** 2) > (ERR ** 2)) or (test2[i] < start) or (stop < test1[i])):
-        #if not((RA1 <= RAs[i] <= RA2) and (DEC1 <= DECs[i] <= DEC2)):
-            flareID[i] = 'bad'
-            RAs[i] = 1000.0
-            DECs[i] = 1000.0
-            t1[i] = -15.0
-            t2[i] = -15.0
-            leflux[i] = -65.0
-            heflux[i] = -65.0
+
+    mask = (((RAs - RA) ** 2 + (DECs - DEC) ** 2) <= (ERR ** 2)) & (t2 > start) & (t1 < stop)
     
-    flareID = list(filter(lambda a: a != 'bad', flareID))
-    RAs = list(filter(lambda a: a < 900.0, RAs))
-    DECs = list(filter(lambda a: a < 900.0, DECs))
-    t1 = list(filter(lambda a: a > -10.0, t1))
-    t2 = list(filter(lambda a: a > -10.0, t2))
-    leflux = list(filter(lambda a: a > -50.0, leflux))
-    heflux = list(filter(lambda a: a > -50.0, heflux))
-    
-    t1 = Time(t1, format = 'unix', scale = 'utc')
-    t2 = Time(t2, format = 'unix', scale = 'utc')
+    flareID = flareID[mask]
+    RAs = RAs[mask]
+    DECs = DECs[mask]
+    t1 = t1[mask]
+    t2 = t2[mask]
+    leflux = leflux[mask]
+    heflux = heflux[mask]
     
     names = np.zeros(len(flareID), dtype = 'S30')
     for i in range(len(names)):
