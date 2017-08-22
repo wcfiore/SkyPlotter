@@ -2,7 +2,6 @@ from astropy.time import Time
 import sys, os, urllib.request, time, stat
 import numpy as np
 import sqlite3
-import math
 
 
 def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
@@ -16,6 +15,10 @@ def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
     if(db_age > 604800):
         os.remove(filename)
         urllib.request.urlretrieve(URL, filename)
+        print('***********************************')
+        print('Existing FAVA database file was out of date. New file downloaded and replaced existing file.')
+        print('***********************************')
+        print('')
     
     conn = sqlite3.connect('fava_flares.db')
     cursor = conn.execute("SELECT flareID, num, best_ra, best_dec, tmin, tmax, le_flux, he_flux from flares")

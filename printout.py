@@ -130,9 +130,10 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
         print('TRANSIENTS:')
         print(tabulate(table2, headers2))
         print('')
-        print("Note: RA and DEC are given in degrees. LE Flux is 100-800 MeV, HE Flux is 0.8-300 GeV. " + \ 
+        print("Note: RA and DEC are given in degrees. LE Flux is 100-800 MeV, HE Flux is 0.8-300 GeV. " + \
               "Fluxes are given in ph/cm^2/s.")
     if(len(table3) != 0):
+        print('NEARBY GALAXIES:')
         print(tabulate(table3, headers3))
         print('')
         print("Note: RA and DEC are given in degrees. Distance is given in Mpc.")

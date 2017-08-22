@@ -18,22 +18,33 @@ def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, pltRA, 
         print('Could not find catalog file for ' + marker + '.')
         if((marker == 'ROSAT') or (marker == 'XMM')):
             if(marker == 'ROSAT'):
-                print('Download the file at the URL: https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3Drosnepagn&Action=More+Options')
-                print("Check the fields for 'name', 'ra', 'dec', 'flux_corr', and 'redshift'. Limit results to 'no limit'. Select FITS output and press search. The file must have the name 'ROSAT.fits' and must be located in the same directory as this program.")
+                print('Download the file at the URL: https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?' \
+                      + 'tablehead=name%3Drosnepagn&Action=More+Options')
+                print("Check the fields for 'name', 'ra', 'dec', 'flux_corr', and 'redshift'. " \
+                + "Limit results to 'no limit'. Select FITS output and press search. " \
+                      + "The file must have the name 'ROSAT.fits' and must be located in the same directory as this program.")
             else:
-                print('Download the file at the URL: https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3Dcaixa&Action=More+Options')
-                print("Check the fields for 'name', 'ra', 'dec', 'hb_flux', and 'redshift'. Limit results to 'no limit'. Select FITS output and press search. The file must have the name 'CAIXA_XMM.fits' and must be located in the same directory as this program.")
+                print('Download the file at the URL: https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?' \
+                      + 'tablehead=name%3Dcaixa&Action=More+Options')
+                print("Check the fields for 'name', 'ra', 'dec', 'hb_flux', and 'redshift'. " \
+                      + "Limit results to 'no limit'. Select FITS output and press search. " \
+                      + "The file must have the name 'CAIXA_XMM.fits' and must be located in " \
+                      + "the same directory as this program.")
             print('***********************************')
             names, RAs, DECs, eflux, pflux, rshift = [], [], [], [], [], [], []
-            return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels
+            return names, RAs, DECs, eflux, pflux, types, rshift, pltRA, pltDEC, srctype, pltflux, labels
         elif(marker == 'neargalcat'):
-            print('https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3Dneargalcat&Action=More+Options')
-            print("Check the fields for 'name', 'ra', 'dec', 'bmag', 'distance', and 'morph_type'. Limit results to 'no limit'. Select FITS output and press search. The file must have the name 'neargalcat.fits' and must be located in the same directory as this program.")
+            print('https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3D ' \
+                  + 'neargalcat&Action=More+Options')
+            print("Check the fields for 'name', 'ra', 'dec', 'bmag', 'distance', and 'morph_type'. " \
+                  + "Limit results to 'no limit'. Select FITS output and press search. " \
+                  + "The file must have the name 'neargalcat.fits' and must be located in " \
+                  + "the same directory as this program.")
             names, RAs, DECs, bmag, dist, galtype = [], [], [], [], [], []
             return names, RAs, DECs, bmag, dist, galtype
         else:
             names, RAs, DECs, eflux, pflux, rshift = [], [], [], [], [], [], []
-            return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels
+            return names, RAs, DECs, eflux, pflux, types, rshift, pltRA, pltDEC, srctype, pltflux, labels
     
     # Read data from file:
     hdulist = fits.open(file_name)
@@ -92,32 +103,18 @@ def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, pltRA, 
     RAs[RAs > RA2] -= 360
         
     # We want to only plot sources that are within the error circle:
-    for i in range(len(names)):
-        if(((RAs[i] - RA) ** 2 + (DECs[i] - DEC) ** 2) > (ERR ** 2)):
-        #if not((RA1 <= RAs[i] <= RA2) and (DEC1 <= DECs[i] <= DEC2)):
-            names[i] = 'bad'
-            RAs[i] = 1000.0
-            DECs[i] = 1000.0
-            if(marker != 'neargalcat'): 
-                eflux[i] = -15.0               
-                pflux[i] = -15.0
-                rshift[i] = 'bad'
-                classes[i] = 'bad'
-            if(marker == 'neargalcat'):
-                dist[i] = -15.0
-                galtype[i] = 'bad'
-        if(marker != 'neargalcat'):
-            if(np.isnan(pflux[i]) == True):
-                pflux[i] = 0.0
+    mask = ((RAs - RA) ** 2 + (DECs - DEC) ** 2) <= (ERR ** 2)
     
-    names = list(filter(lambda a: a != 'bad', names))
-    RAs = list(filter(lambda a: a < 900.0, RAs))
-    DECs = list(filter(lambda a: a < 900.0, DECs))
+    names = names[mask]
+    RAs = RAs[mask]
+    DECs = DECs[mask]
     if(marker != 'neargalcat'):
-        eflux = list(filter(lambda a: a >= -10.0, eflux))
-        pflux = list(filter(lambda a: a >= -10.0, pflux))
-        rshift = list(filter(lambda a: a != 'bad', rshift))
-        classes = list(filter(lambda a: a != 'bad', classes))
+        eflux = eflux[mask]
+        pflux = pflux[mask]
+        rshift = rshift[mask]
+        classes = classes[mask]
+        
+        limit = len(labels)
         
         for i in range(len(names)):
             if((classes[i] == 'psr') or (classes[i] == 'PSR')):
@@ -162,7 +159,8 @@ def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, pltRA, 
                 pltRA.append(RAs[i])
                 pltDEC.append(DECs[i])
                 pltflux.append(eflux[i])
-            elif((classes[i] == 'bll') or (classes[i] == 'bll-g') or (classes[i] == 'fsrq') or (classes[i] == 'bcu I') or (classes[i] == 'bcu II') or (classes[i] == 'bcu III')):
+            elif((classes[i] == 'bll') or (classes[i] == 'bll-g') or (classes[i] == 'fsrq') or \
+                 (classes[i] == 'bcu I') or (classes[i] == 'bcu II') or (classes[i] == 'bcu III')):
                 labels.append('blazar')
                 srctype.append('bzr')
                 pltRA.append(RAs[i])
@@ -234,14 +232,17 @@ def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, pltRA, 
                 pltRA.append(RAs[i])
                 pltDEC.append(DECs[i])
                 pltflux.append(eflux[i])
-            
+        mask1 = np.full(limit, False)
+        mask2 = np.full(len(labels) - limit, True)
+        mask = np.append(mask1, mask2)
+        types = np.array(labels)[mask]
     else:
-        dist = list(filter(lambda a: a >= -10.0, dist))
-        galtype = list(filter(lambda a: a != 'bad', galtype))    
+        dist = dist[mask]
+        galtype = galtype[mask]   
 
     if((marker == 'ROSAT') or (marker == 'XMM')):
-        return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels
+        return names, RAs, DECs, eflux, pflux, types, rshift, pltRA, pltDEC, srctype, pltflux, labels
     elif(marker == 'neargalcat'):
         return names, RAs, DECs, bmag, dist, galtype
     else:
-        return names, RAs, DECs, eflux, pflux, srctype, rshift, pltRA, pltDEC, srctype, pltflux, labels
+        return names, RAs, DECs, eflux, pflux, types, rshift, pltRA, pltDEC, srctype, pltflux, labels

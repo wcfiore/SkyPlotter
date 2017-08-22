@@ -38,24 +38,15 @@ def readTeGeV(file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, srct
     RAs[RAs > RA2] -= 360
         
     # We want to only plot sources that are within the error circle:
-    for i in range(len(names)):
-        if(((RAs[i] - RA) ** 2 + (DECs[i] - DEC) ** 2) > (ERR ** 2)):
-        #if not((RA1 <= RAs[i] <= RA2) and (DEC1 <= DECs[i] <= DEC2)):
-            names[i] = 'bad'
-            RAs[i] = 1000.0
-            DECs[i] = 1000.0
-            classes[i] = 'bad'
-            eflux[i] = -15.0
-            pflux[i] = -15.0
-            rshift[i] = 'bad'
+    mask = ((RAs - RA) ** 2 + (DECs - DEC) ** 2) <= (ERR ** 2)
     
-    names = list(filter(lambda a: a != 'bad', names))
-    RAs = list(filter(lambda a: a < 900.0, RAs))
-    DECs = list(filter(lambda a: a < 900.0, DECs))
-    classes = list(filter(lambda a: a != 'bad', classes))
-    eflux = list(filter(lambda a: a >= 0.0, eflux))
-    pflux = list(filter(lambda a: a >= 0.0, pflux))
-    rshift = list(filter(lambda a: a != 'bad', rshift))
+    names = names[mask]
+    RAs = RAs[mask]
+    DECs = DECs[mask]
+    eflux = eflux[mask]
+    pflux = pflux[mask]
+    rshift = rshift[mask]
+    classes = classes[mask]
     
     for i in range(len(names)):
         if(classes[i] == 'PWN/SNR'):
@@ -64,7 +55,8 @@ def readTeGeV(file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, srct
             pltRA.append(RAs[i])
             pltDEC.append(DECs[i])
             pltflux.append(eflux[i])
-        elif((classes[i] == 'HBL') or (classes[i] == 'LBL') or (classes[i] == 'IBL') or (classes[i] == 'Blazar') or (classes[i] == 'FSRQ')):
+        elif((classes[i] == 'HBL') or (classes[i] == 'LBL') or (classes[i] == 'IBL') or (classes[i] == 'Blazar') \
+             or (classes[i] == 'FSRQ')):
             labels.append('blazar')
             srctype.append('bzr')
             pltRA.append(RAs[i])
