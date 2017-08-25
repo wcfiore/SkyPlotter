@@ -4,7 +4,13 @@ from tabulate import tabulate
 # This function outputs a table onto the command line listing the sources
 # inside the error circle, along with their coordinates, name, type, and eflux.
 
-def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL, pflux3FGL, srctype3FGL, rshift3FGL, names2FHL, RAs2FHL, DECs2FHL, eflux2FHL, pflux2FHL, srctype2FHL, rshift2FHL, names2FAV, RAs2FAV, DECs2FAV, eflux2FAV, pflux2FAV, srctype2FAV, rshift2FAV, namesRX, RAsRX, DECsRX, efluxRX, pfluxRX, srctypeRX, rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM, srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, DECsTeGeV, efluxTeGeV, pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, srctypeFAVA, t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG, galtypeNBG):
+def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL, pflux3FGL, srctype3FGL, rshift3FGL, \
+             names2FHL, RAs2FHL, DECs2FHL, eflux2FHL, pflux2FHL, srctype2FHL, rshift2FHL, names2FAV, RAs2FAV, DECs2FAV, \
+             eflux2FAV, pflux2FAV, srctype2FAV, rshift2FAV, namesRX, RAsRX, DECsRX, efluxRX, pfluxRX, srctypeRX, \
+             rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM, srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, \
+             DECsTeGeV, efluxTeGeV, pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, srctypeFAVA, \
+             t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG, galtypeNBG, \
+             triggerNGRB, RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB):
     
     names = np.append(names3FGL, names2FHL)
     names = np.append(names, names2FAV)
@@ -115,28 +121,50 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
     
     for i in range(len(namesNBG)):
         table3[i] = (namesNBG[i], RAsNBG[i], DECsNBG[i], bmagNBG[i], distNBG[i], galtypeNBG[i])
+        
+    for i in range(len(RAsGRB)):
+        if(RAsGRB[i] > 360):
+            RAsGRB[i] -= 360
+        elif(RAsGRB[i] < 0):
+            RAsGRB[i] += 360
+            
+    table4 = np.zeros(len(RAsGRB), dtype = '30str, f, f, 30str, f')
+    
+    headers4 = ('Name', 'RA', 'DEC', 'Time', 'Error')
+    
+    for i in range(len(triggerNGRB)):
+        table4[i] = (triggerNGRB[i], RAsGRB[i], DECsGRB[i], burstTimeGRB[i], ErrorGRB[i])
+        
+    table4 = np.sort(table4.view('30str, f, f, 30str, f'), order = ['f0'], axis = 0)[::-1].view()
     
     print('NEUTRINO SOURCE CANDIDATES WITHIN', ERR, 'DEGREES OF: RA', RA, 'DEC', DEC)
     print('BETWEEN ' + start.iso + ' AND ' + stop.iso)
     print('')
-    if(len(table) != 0):
+    if(len(table) > 0):
         print('STEADY SOURCES:')
         print(tabulate(table, headers))
         print('')
         print("Note: RA and DEC are given in degrees. Energy flux is given in ergs/cm^2/s. " + \
               "Photon flux is given in ph/cm^2/s. Size of markers increases linearly with " + \
               "energy flux for sources with an energy flux value.")
-    if(len(table2) != 0):
-        print('TRANSIENTS:')
+    if(len(table2) > 0):
+        print('FAVA FLARES:')
         print(tabulate(table2, headers2))
         print('')
         print("Note: RA and DEC are given in degrees. LE Flux is 100-800 MeV, HE Flux is 0.8-300 GeV. " + \
               "Fluxes are given in ph/cm^2/s.")
-    if(len(table3) != 0):
+    if(len(table3) > 0):
         print('NEARBY GALAXIES:')
         print(tabulate(table3, headers3))
         print('')
         print("Note: RA and DEC are given in degrees. Distance is given in Mpc.")
-    if((len(table) == 0) and (len(table2) == 0) and (len(table3) == 0)):
+    if(len(table4) > 0):
+        print('GAMMA RAY BURSTS:')
+        print(tabulate(table4, headers4))
+        print('')
+        print('Note: RA and DEC are given in degrees. Error is given in arcminutes.')
+        print('A negative Error value indicates a Retraction of a previous notice. That notice is NOT a GRB.')
+        print('Make sure to check the GCN website for more information: https://gcn.gsfc.nasa.gov/burst_info.html')
+    if((len(table) == 0) and (len(table2) == 0) and (len(table3) == 0) and (len(table4) == 0)):
         print('NO SOURCES FOUND WITHIN ERROR CIRCLE')
     

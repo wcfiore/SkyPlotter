@@ -34,7 +34,7 @@ def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, pltRA, 
             names, RAs, DECs, eflux, pflux, rshift = [], [], [], [], [], [], []
             return names, RAs, DECs, eflux, pflux, types, rshift, pltRA, pltDEC, srctype, pltflux, labels
         elif(marker == 'neargalcat'):
-            print('https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3D ' \
+            print('https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3table.pl?tablehead=name%3D' \
                   + 'neargalcat&Action=More+Options')
             print("Check the fields for 'name', 'ra', 'dec', 'bmag', 'distance', and 'morph_type'. " \
                   + "Limit results to 'no limit'. Select FITS output and press search. " \
@@ -98,7 +98,8 @@ def readfits(URL, file_name, RA, DEC, ERR, RA1, RA2, DEC1, DEC2, marker, pltRA, 
         bmag = tbdata.field(3)
         dist = tbdata.field(4)
         galtype = tbdata.field(5)
-        
+    
+    print(type(RAs), type(DECs))
     RAs[RAs < RA1] += 360
     RAs[RAs > RA2] -= 360
         

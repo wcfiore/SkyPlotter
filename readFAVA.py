@@ -67,7 +67,7 @@ def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
     heflux = heflux.astype('float')
     
     # We want to only plot sources that are within the error circle:
-
+    
     mask = (((RAs - RA) ** 2 + (DECs - DEC) ** 2) <= (ERR ** 2)) & (t2 > start) & (t1 < stop)
     
     flareID = flareID[mask]
