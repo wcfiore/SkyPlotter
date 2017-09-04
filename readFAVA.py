@@ -4,7 +4,7 @@ import numpy as np
 import sqlite3
 
 
-def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
+def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, pltsize, labels, markers):
     URL = 'http://slac.stanford.edu/~kocevski/FAVA/weekly/P8R2_SOURCE_V6/db/fava_flares.db'
     filename = './fava_flares.db'
     
@@ -81,8 +81,14 @@ def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2):
     names = np.zeros(len(flareID), dtype = 'S30')
     for i in range(len(names)):
         names[i] = 'FAVA Flare ' + flareID[i]
-    srctype = np.zeros(len(flareID), dtype = 'S20')
-    for i in range(len(srctype)):
-        srctype[i] = 'FAVA Flare'
     
-    return names, RAs, DECs, srctype, t1, t2, leflux, heflux
+    pltRA = np.append(pltRA, RAs)
+    pltDEC = np.append(pltDEC, DECs)
+    FAVAsize = np.full(len(RAs), 60)
+    pltsize = np.append(pltsize, FAVAsize)
+    FAVAlabels = np.full(len(RAs), 'FAVA flare')
+    labels = np.append(labels, FAVAlabels)
+    FAVAmarkers = np.full(len(RAs), 'X')
+    markers = np.append(markers, FAVAmarkers)
+    
+    return names, RAs, DECs, t1, t2, leflux, heflux, pltRA, pltDEC, pltsize, labels, markers

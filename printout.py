@@ -8,7 +8,7 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
              names2FHL, RAs2FHL, DECs2FHL, eflux2FHL, pflux2FHL, srctype2FHL, rshift2FHL, names2FAV, RAs2FAV, DECs2FAV, \
              eflux2FAV, pflux2FAV, srctype2FAV, rshift2FAV, namesRX, RAsRX, DECsRX, efluxRX, pfluxRX, srctypeRX, \
              rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM, srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, \
-             DECsTeGeV, efluxTeGeV, pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, srctypeFAVA, \
+             DECsTeGeV, efluxTeGeV, pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, \
              t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG, galtypeNBG, \
              triggerNGRB, RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB):
     
@@ -147,17 +147,20 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
         print("Note: RA and DEC are given in degrees. Energy flux is given in ergs/cm^2/s. " + \
               "Photon flux is given in ph/cm^2/s. Size of markers increases linearly with " + \
               "energy flux for sources with an energy flux value.")
+    print('')
     if(len(table2) > 0):
         print('FAVA FLARES:')
         print(tabulate(table2, headers2))
         print('')
         print("Note: RA and DEC are given in degrees. LE Flux is 100-800 MeV, HE Flux is 0.8-300 GeV. " + \
               "Fluxes are given in ph/cm^2/s.")
+    print('')
     if(len(table3) > 0):
         print('NEARBY GALAXIES:')
         print(tabulate(table3, headers3))
         print('')
         print("Note: RA and DEC are given in degrees. Distance is given in Mpc.")
+    print('')
     if(len(table4) > 0):
         print('GAMMA RAY BURSTS:')
         print(tabulate(table4, headers4))
