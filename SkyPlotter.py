@@ -41,12 +41,11 @@ DEC = args.DEC
 ERR = args.ERR
 start = args.start
 stop = args.stop
-
-if 'catalogs' in args:
-    catalogs = args.catalogs
-else:
+if 'catalogs' not in args or args.catalogs == None:
     catalogs = ['3FGL', '2FHL', '2FAV', 'TeGeV', 'ROSAT', 'XMM', 'NBG', 'FAVA', 'GRB', 'SNe']
-
+else:
+    catalogs = args.catalogs
+    
 from astropy.time import Time
 
 start = Time(start, format = 'iso', scale = 'utc')
@@ -62,8 +61,6 @@ RA1 = RA - 1.5 * ERR
 RA2 = RA + 1.5 * ERR
 DEC1 = DEC - 1.5 * ERR
 DEC2 = DEC + 1.5 * ERR
-
-######################################
 
 pltRA, pltDEC, srctype, pltsize, labels, markers = [], [], [], [], [], []
 
@@ -211,14 +208,30 @@ for i in catalogs:
         pltDEC = np.append(pltDEC, DECsGRB)
         pltsize = np.append(pltsize, np.full(len(RAsGRB), '80'))
         labels = np.append(labels, np.full(len(RAsGRB), 'Possible GRB'))
-        markers = np.append(markers, np.full(len(RAsGRB), 'D'))
+        markers = np.append(markers, np.full(len(RAsGRB), '+'))
         
         check = True
+    
 if(check == False):
     triggerNGRB, burstTimeGRB, RAsGRB, DECsGRB, ErrorGRB = [], [], [], [], []
 else:
     check = False
 
+for i in catalogs:
+    if(i == 'SNe'):
+        import readSNe
+        
+        namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe, pltRA, pltDEC, pltsize, markers, labels = \
+        readSNe.readSNe('https://raw.githubusercontent.com/astrocatalogs/supernovae/master/output/catalog.json', \
+                        'catalog.json', RA, DEC, ERR, pltRA, pltDEC, pltsize, markers, labels)
+        
+        check = True
+        
+if(check == False):
+    namesSNe, RAsSNE, DECsSNE, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
+else:
+    check = False
+    
 import printout
 
 printout.printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL, pflux3FGL, srctype3FGL, rshift3FGL, \
@@ -226,14 +239,14 @@ printout.printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux
                   eflux2FAV, pflux2FAV, srctype2FAV, rshift2FAV, namesRX, RAsRX, DECsRX, efluxRX, pfluxRX, srctypeRX, \
                   rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM, srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, \
                   DECsTeGeV, efluxTeGeV, pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, \
-                  t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG, galtypeNBG, \
-                  triggerNGRB, RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB)
+                  t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG, galtypeNBG, triggerNGRB, \
+                  RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB, namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe)
 
 from astropy.visualization import astropy_mpl_style
 import matplotlib.pyplot as plt
 plt.style.use(astropy_mpl_style)
 
-import ploterrcirc        
+import ploterrcirc
 
 ploterrcirc.ploterrcirc(RA, DEC, ERR, RA1, RA2, DEC1, DEC2)
 

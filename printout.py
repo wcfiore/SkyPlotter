@@ -10,7 +10,8 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
              rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM, srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, \
              DECsTeGeV, efluxTeGeV, pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, \
              t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG, galtypeNBG, \
-             triggerNGRB, RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB):
+             triggerNGRB, RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB, namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, \
+             hostsSNe):
     
     names = np.append(names3FGL, names2FHL)
     names = np.append(names, names2FAV)
@@ -136,6 +137,15 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
         table4[i] = (triggerNGRB[i], RAsGRB[i], DECsGRB[i], burstTimeGRB[i], ErrorGRB[i])
         
     table4 = np.sort(table4.view('30str, f, f, 30str, f'), order = ['f0'], axis = 0)[::-1].view()
+            
+    table5 = np.zeros(len(RAsSNe), dtype = '30str, f, f, 30str, 30str, 30str, f')
+    
+    headers5 = ('Name', 'RA', 'DEC', 'Date', 'Type', 'Host Name', 'App Mag')
+    
+    for i in range(len(RAsSNe)):
+        table5[i] = (namesSNe[i], RAsSNe[i], DECsSNe[i], datesSNe[i], typesSNe[i], hostsSNe[i], magsSNe[i])
+        
+    table5 = np.sort(table5.view('30str, f, f, 30str, 30str, 30str, f'), order = ['f3'], axis = 0)[::-1].view()
     
     print('NEUTRINO SOURCE CANDIDATES WITHIN', ERR, 'DEGREES OF: RA', RA, 'DEC', DEC)
     print('BETWEEN ' + start.iso + ' AND ' + stop.iso)
@@ -168,6 +178,11 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
         print('Note: RA and DEC are given in degrees. Error is given in arcminutes.')
         print('A negative Error value indicates a Retraction of a previous notice. That notice is NOT a GRB.')
         print('Make sure to check the GCN website for more information: https://gcn.gsfc.nasa.gov/burst_info.html')
+    if(len(table5) > 0):
+        print('SUPERNOVAE:')
+        print(tabulate(table5, headers5))
+        print('')
+        print('Note: RA and DEC are given in degrees.')
     if((len(table) == 0) and (len(table2) == 0) and (len(table3) == 0) and (len(table4) == 0)):
         print('NO SOURCES FOUND WITHIN ERROR CIRCLE')
     

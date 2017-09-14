@@ -3,7 +3,6 @@ import sys, os, urllib.request, time, stat
 import numpy as np
 import sqlite3
 
-
 def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, pltsize, labels, markers):
     URL = 'http://slac.stanford.edu/~kocevski/FAVA/weekly/P8R2_SOURCE_V6/db/fava_flares.db'
     filename = './fava_flares.db'

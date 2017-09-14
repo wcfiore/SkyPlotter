@@ -6,13 +6,13 @@ def plotsrcs(pltRA, pltDEC, srctype, pltsize, labels, markers):
     
     colors = ['b', 'lavender', 'darkred', 'g', 'r', 'pink', 'c', 'm', 'indigo', 'lime', 'aqua', 'y', 'k', 'tan', 'brown', \
               'black', 'darkviolet', 'maroon', 'dimgray', 'lightsalmon', 'indianred', 'fuchsia', 'deeppink', 'darkkhaki', \
-              'rebeccapurple', 'olive', 'crimson', 'mediumorchid', 'lightseagreen', 'palevioletred']
+              'rebeccapurple', 'olive', 'crimson', 'mediumorchid', 'lightseagreen', 'palevioletred', 'brown']
     
     lb = ['pulsar', 'psr wind nebula', 'supernova remnant', 'SNR / PWN', 'high-mass binary', 'binary', \
-          'star-forming region', 'blazar', 'active galaxy / AGN', 'radio galaxy', 'radio galaxy / BL Lac blazar', 'normal galaxy (or part), gamma ray source', \
-          'galaxy cluster', 'Seyfert galaxy', 'nova', 'globular cluster', 'quasar', 'starburst galaxy', \
-          'unassociated gamma ray source', 'starburst', 'XRB', 'SNR / molecular cloud', 'superbubble', 'FRI', \
-          'Wolf-Rayet star', 'SNR / shell', 'nearby galaxy', 'FAVA flare', 'possible GRB']
+          'star-forming region', 'blazar', 'active galaxy / AGN', 'radio galaxy', 'radio galaxy / BL Lac blazar', \
+          'normal galaxy (or part), gamma ray source', 'galaxy cluster', 'Seyfert galaxy', 'nova', 'globular cluster', \
+          'quasar', 'starburst galaxy', 'unassociated gamma ray source', 'starburst', 'XRB', 'SNR / molecular cloud', \
+          'superbubble', 'FRI', 'Wolf-Rayet star', 'SNR / shell', 'nearby galaxy', 'FAVA flare', 'possible GRB', 'supernova']
     
     j = 0
     
