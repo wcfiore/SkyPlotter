@@ -1,6 +1,6 @@
 from astropy.io import fits
 import numpy as np
-import os, urllib.request
+import os
 import numpy as np
 
 

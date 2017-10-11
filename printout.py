@@ -128,15 +128,27 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
             RAsGRB[i] -= 360
         elif(RAsGRB[i] < 0):
             RAsGRB[i] += 360
+
+    dt = np.dtype([
+        ('name', "S50"),
+        ('RA', np.float),
+        ('Dec', np.float),
+        ('Time', "S50"),
+        ('Error', np.float)
+    ])
             
-    table4 = np.zeros(len(RAsGRB), dtype = '30str, f, f, 30str, f')
+    table4 = np.zeros(len(RAsGRB), dtype=dt)
     
     headers4 = ('Name', 'RA', 'DEC', 'Time', 'Error')
     
     for i in range(len(triggerNGRB)):
-        table4[i] = (triggerNGRB[i], RAsGRB[i], DECsGRB[i], burstTimeGRB[i], ErrorGRB[i])
+        print str(triggerNGRB[i])
+        new = np.array((triggerNGRB[i], RAsGRB[i], DECsGRB[i],
+                          burstTimeGRB[i].value,
+                     ErrorGRB[i]), dtype=dt)
+        table4[i] = new
         
-    table4 = np.sort(table4.view('30str, f, f, 30str, f'), order = ['f0'], axis = 0)[::-1].view()
+    table4 = np.sort(table4, order = ['Time'], axis = 0)[::-1].view()
             
     table5 = np.zeros(len(RAsSNe), dtype = '30str, f, f, 30str, 30str, 30str, f')
     

@@ -1,4 +1,4 @@
-from urllib.request import urlopen
+import urllib2
 from bs4 import BeautifulSoup
 import sys
 from astropy.time import Time
@@ -26,10 +26,10 @@ def readGCN(RA, DEC, ERR, RA1, RA2, start, stop, tel):
     else:
         print("%s is not a valid choice. Valid choices are MAXI, Fermi, Integral, Swift. Exit")
         sys.exit()
-    
-    sock = urlopen(htmlAddress)
-    htmlSource = sock.read() 
-    sock.close()
+
+    sock = urllib2.urlopen(htmlAddress)
+    htmlSource = sock.read()
+
     parsed_html = BeautifulSoup(htmlSource, "lxml")
 
     table = parsed_html.body.find("table")

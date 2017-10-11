@@ -174,6 +174,8 @@ if(check == False):
 else:
     check = False
 
+print pltRA
+
 for i in catalogs:
     if(i == 'GRB'):
         import readGCN
@@ -228,21 +230,27 @@ for i in catalogs:
         check = True
         
 if(check == False):
-    namesSNe, RAsSNE, DECsSNE, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
+    namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
 else:
     check = False
     
 import printout
 
-printout.printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL, pflux3FGL, srctype3FGL, rshift3FGL, \
-                  names2FHL, RAs2FHL, DECs2FHL, eflux2FHL, pflux2FHL, srctype2FHL, rshift2FHL, names2FAV, RAs2FAV, DECs2FAV, \
-                  eflux2FAV, pflux2FAV, srctype2FAV, rshift2FAV, namesRX, RAsRX, DECsRX, efluxRX, pfluxRX, srctypeRX, \
-                  rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM, srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, \
-                  DECsTeGeV, efluxTeGeV, pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, \
-                  t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG, galtypeNBG, triggerNGRB, \
-                  RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB, namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe)
+printout.printout(
+    RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
+    pflux3FGL, srctype3FGL, rshift3FGL, names2FHL, RAs2FHL, DECs2FHL, eflux2FHL,
+    pflux2FHL, srctype2FHL, rshift2FHL, names2FAV, RAs2FAV, DECs2FAV, eflux2FAV,
+    pflux2FAV, srctype2FAV, rshift2FAV, namesRX, RAsRX, DECsRX, efluxRX,
+    pfluxRX, srctypeRX, rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM,
+    srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, DECsTeGeV, efluxTeGeV,
+    pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, t1FAVA,
+    t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG,
+    galtypeNBG, triggerNGRB, RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB, namesSNe,
+    RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe)
 
 from astropy.visualization import astropy_mpl_style
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.style.use(astropy_mpl_style)
 

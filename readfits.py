@@ -1,6 +1,6 @@
 from astropy.io import fits
 import numpy as np
-import os, urllib.request
+import os, urllib
 import numpy as np
 
 # This function reads downloads and data from fits files and sorts the sources by type

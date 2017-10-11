@@ -17,10 +17,13 @@ def plotsrcs(pltRA, pltDEC, srctype, pltsize, labels, markers):
     j = 0
     
     for i in lb:
+        print i, pltRA
         if(len(pltRA[labels == i]) > 0):
+            print i
             plt.scatter(pltRA[labels == i], pltDEC[labels == i], c = colors[j], s = pltsize[labels == i], marker = markers[labels == i][0], label = i)
             j += 1
             
     plt.legend(bbox_to_anchor = (1.04, 1), loc = "upper left")
     #plt.legend()
     plt.show()
+    plt.savefig("output.pdf")
