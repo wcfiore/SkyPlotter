@@ -12,15 +12,18 @@ def plotsrcs(pltRA, pltDEC, srctype, pltsize, labels, markers):
           'star-forming region', 'blazar', 'active galaxy / AGN', 'radio galaxy', 'radio galaxy / BL Lac blazar', \
           'normal galaxy (or part), gamma ray source', 'galaxy cluster', 'Seyfert galaxy', 'nova', 'globular cluster', \
           'quasar', 'starburst galaxy', 'unassociated gamma ray source', 'starburst', 'XRB', 'SNR / molecular cloud', \
-          'superbubble', 'FRI', 'Wolf-Rayet star', 'SNR / shell', 'nearby galaxy', 'FAVA flare', 'possible GRB', 'supernova']
+          'superbubble', 'FRI', 'Wolf-Rayet star', 'SNR / shell', 'nearby galaxy', 'FAVA flare', 'Possible GRB', 'supernova']
     
     j = 0
     
     for i in lb:
-        print i, pltRA
         if(len(pltRA[labels == i]) > 0):
-            print i
-            plt.scatter(pltRA[labels == i], pltDEC[labels == i], c = colors[j], s = pltsize[labels == i], marker = markers[labels == i][0], label = i)
+            # plt.scatter(
+            #     pltRA[labels == i], pltDEC[labels == i], c=colors[j],
+            #     s=pltsize[labels == i], marker=markers[labels==i][0], label=i)
+            plt.scatter(
+                pltRA[labels == i], pltDEC[labels == i], c=colors[j],
+                marker=markers[labels==i][0], label=i)
             j += 1
             
     plt.legend(bbox_to_anchor = (1.04, 1), loc = "upper left")

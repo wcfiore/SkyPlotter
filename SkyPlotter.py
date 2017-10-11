@@ -174,8 +174,6 @@ if(check == False):
 else:
     check = False
 
-print pltRA
-
 for i in catalogs:
     if(i == 'GRB'):
         import readGCN
