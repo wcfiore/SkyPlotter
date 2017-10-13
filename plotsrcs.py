@@ -26,7 +26,7 @@ def plotsrcs(pltRA, pltDEC, srctype, pltsize, labels, markers):
                 marker=markers[labels==i][0], label=i)
             j += 1
             
-    plt.legend(bbox_to_anchor = (1.04, 1), loc = "upper left")
-    #plt.legend()
+    # plt.legend(bbox_to_anchor = (1.04, 1), loc = "upper left")
+    plt.legend()
     plt.show()
     plt.savefig("output.pdf")
