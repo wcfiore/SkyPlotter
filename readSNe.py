@@ -37,16 +37,16 @@ def readSNe(URL, file_name, RA, DEC, ERR, pltRA, pltDEC, pltsize, markers, label
             
             ra = 0
             
-            for i, dt in enumerate(ra_list):
-                ra += ((float(dt) * (60 ** i)) / (60 * 60 * 24)) * 360
+            for j, dt in enumerate(ra_list):
+                ra += ((float(dt) * (60 ** j)) / (60 * 60 * 24)) * 360
             
             dec = data[i]['dec'][0]['value']
             dec_list = dec.split(":")
             
             dec = 0
             
-            for i, dt in enumerate(dec_list):
-                dec += float(dt) / (60 ** i)
+            for k, dt in enumerate(dec_list):
+                dec += float(dt) / (60 ** k)
                 
             if((RA - ra) ** 2 + (DEC - dec) ** 2 < ERR ** 2):
                 names = np.append(names, data[i]['name'])
