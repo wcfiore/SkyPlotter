@@ -206,7 +206,7 @@ for i in catalogs:
         
         pltRA = np.append(pltRA, RAsGRB)
         pltDEC = np.append(pltDEC, DECsGRB)
-        pltsize = np.append(pltsize, np.full(len(RAsGRB), '80'))
+        pltsize = np.append(pltsize, np.full(len(RAsGRB), 80))
         labels = np.append(labels, np.full(len(RAsGRB), 'Possible GRB'))
         markers = np.append(markers, np.full(len(RAsGRB), '+'))
         
