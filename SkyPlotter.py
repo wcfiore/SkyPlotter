@@ -39,17 +39,25 @@ if not(0.0 <= args.ERR <= 90.0):
 RA = args.RA
 DEC = args.DEC
 ERR = args.ERR
-start = args.start
-stop = args.stop
+
+from astropy.time import Time
+
+if 'start' not in args or args.start == None:
+    start = Time(Time.now().mjd - 365, format = 'mjd', scale = 'utc')
+else:
+    start = Time(args.start, format = 'iso', scale = 'utc')
+    
+if 'stop' not in args or args.stop == None:
+    stop = Time(Time.now().mjd, format = 'mjd', scale = 'utc')
+else:
+    stop = Time(args.stop, format = 'iso', scale = 'utc')
+    
 if 'catalogs' not in args or args.catalogs == None:
     catalogs = ['3FGL', '2FHL', '2FAV', 'TeGeV', 'ROSAT', 'XMM', 'NBG', 'FAVA', 'GRB', 'SNe']
 else:
     catalogs = args.catalogs
     
 from astropy.time import Time
-
-start = Time(start, format = 'iso', scale = 'utc')
-stop = Time(stop, format = 'iso', scale = 'utc')
 
 if(start > stop):
     print("Error: Event's end time should be after its start time.")
@@ -228,7 +236,7 @@ for i in catalogs:
         check = True
         
 if(check == False):
-    namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
+    namesSNe, RAsSNE, DECsSNE, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
 else:
     check = False
     
