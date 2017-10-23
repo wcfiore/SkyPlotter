@@ -134,7 +134,8 @@ def printout(RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
     headers4 = ('Name', 'RA', 'DEC', 'Time', 'Error')
     
     for i in range(len(triggerNGRB)):
-        table4[i] = (triggerNGRB[i], RAsGRB[i], DECsGRB[i], burstTimeGRB[i], ErrorGRB[i])
+        table4[i] = (triggerNGRB[i], RAsGRB[i], DECsGRB[i], burstTimeGRB[i].iso,
+                     ErrorGRB[i])
         
     table4 = np.sort(table4.view('30str, f, f, 30str, f'), order = ['f0'], axis = 0)[::-1].view()
             

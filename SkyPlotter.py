@@ -236,7 +236,7 @@ for i in catalogs:
         check = True
         
 if(check == False):
-    namesSNe, RAsSNE, DECsSNE, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
+    namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
 else:
     check = False
     

@@ -63,7 +63,7 @@ def readGCN(RA, DEC, ERR, RA1, RA2, start, stop, tel):
         triggerN[i] = tel + ' ' + triggerN[i]
         burstTime[i] = '20' + burstDate[i] + ' ' + burstTime[i]
         burstTime[i] = burstTime[i].replace('/', '-')
-    
+
     burstTime = Time(burstTime, format = 'iso', scale = 'utc')
     t1 = start - 300 * u.s
     t2 = stop + 300 * u.s
