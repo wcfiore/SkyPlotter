@@ -52,7 +52,6 @@ if 'catalogs' not in args or args.catalogs == None:
     catalogs = ['3FGL', '2FHL', '2FAV', 'TeGeV', 'ROSAT', 'XMM', 'NBG', 'FAVA', 'GRB', 'SNe']
 else:
     catalogs = args.catalogs
-    
 
 if(event_parameters["start"] > event_parameters["stop"]):
     print("Error: Event's end time should be after its start time.")
@@ -201,3 +200,4 @@ ploterrcirc.ploterrcirc(event_parameters)
 import plotsrcs
 
 plotsrcs.plotsrcs(catalog_search_results)
+

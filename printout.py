@@ -200,4 +200,3 @@ def printout(parameters, catalog_search_results):
     #     print('Note: RA and DEC are given in degrees.')
     # if((len(table) == 0) and (len(table2) == 0) and (len(table3) == 0) and (len(table4) == 0)):
     #     print('NO SOURCES FOUND WITHIN ERROR CIRCLE')
-    
