@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import argparse
+import sys
+from astropy.time import Time
 
 # We want the user to input the neutrino event's RA, DEC, and the radius of its error circle:
 
@@ -8,9 +10,9 @@ parser.add_argument('-r', '--RA', type = float, dest = 'RA', help = 'enter right
 parser.add_argument('-d', '--DEC', type = float, dest = 'DEC', help = 'enter declination in degrees')
 parser.add_argument('-e', '--ERR', type = float, dest = 'ERR', help = 'enter radius of the error circle in degrees')
 parser.add_argument('-t', '--start', type = str, dest = 'start', help = "start time of event, format 'YYYY-MM-DD" \
-                    + "HH:MM:SS.SSS...'")
+                    + "HH:MM:SS.SSS...'", default=(Time.now().mjd - 365))
 parser.add_argument('-s', '--stop', type = str, dest = 'stop', help = "end time of event, format 'YYYY-MM-DD" \
-                    + "HH:MM:SS.SSS...'")
+                    + "HH:MM:SS.SSS...'", default=Time.now().mjd)
 parser.add_argument('-c', '--cats', type = str, dest = 'catalogs', nargs = '+', help = \
                     'Manually include the catalogs of your choice.' \
                     + ' Choices include: "3FGL", "2FHL", "2FAV", "TeGeV",' \
@@ -18,7 +20,7 @@ parser.add_argument('-c', '--cats', type = str, dest = 'catalogs', nargs = '+', 
 
 args = parser.parse_args()
 
-import sys
+
 
 #Limit acceptable values of RA and DEC. 
 
@@ -34,33 +36,31 @@ if not(0.0 <= args.ERR <= 90.0):
     print('Error: Error circle radius should be between 0 and 90 degrees')
     sys.exit()
 
-# Variables are easier to work with without the 'args.'
+event_parameters = {
+    "RA": args.RA,
+    "DEC": args.DEC,
+    "ERR": args.ERR,
+    "start": Time(args.start, format = 'iso', scale = 'utc'),
+    "stop": Time(args.stop, format = 'iso', scale = 'utc'),
+    "RA1" : args.RA - 1.5 * args.ERR,
+    "RA2": args.RA + 1.5 * args.ERR,
+    "DEC1": args.DEC - 1.5 * args.ERR,
+    "DEC2": args.DEC + 1.5 * args.ERR
+}
 
-RA = args.RA
-DEC = args.DEC
-ERR = args.ERR
-start = args.start
-stop = args.stop
 if 'catalogs' not in args or args.catalogs == None:
     catalogs = ['3FGL', '2FHL', '2FAV', 'TeGeV', 'ROSAT', 'XMM', 'NBG', 'FAVA', 'GRB', 'SNe']
 else:
     catalogs = args.catalogs
     
-from astropy.time import Time
 
-start = Time(start, format = 'iso', scale = 'utc')
-stop = Time(stop, format = 'iso', scale = 'utc')
-
-if(start > stop):
+if(event_parameters["start"] > event_parameters["stop"]):
     print("Error: Event's end time should be after its start time.")
     sys.exit()
 
 ######################################
 
-RA1 = RA - 1.5 * ERR
-RA2 = RA + 1.5 * ERR
-DEC1 = DEC - 1.5 * ERR
-DEC2 = DEC + 1.5 * ERR
+catalog_search_results = dict()
 
 pltRA, pltDEC, srctype, pltsize, labels, markers = [], [], [], [], [], []
 
@@ -160,62 +160,14 @@ if(check == False):
 else:
     check = False
 
-for i in catalogs:
-    if(i == 'FAVA'):
-        import readFAVA
-        namesFAVA, RAsFAVA, DECsFAVA, t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA, pltRA, pltDEC, \
-        pltsize, labels, markers = readFAVA.readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2, \
-                                                              pltRA, pltDEC, pltsize, labels, markers)
-        
-        check = True
+if "FAVA" in catalogs:
+    import readFAVA
+    FAVA_dict = readFAVA.readFAVA(event_parameters)
+    catalog_search_results["FAVA"] = FAVA_dict
 
-if(check == False):
-    namesFAVA, RAsFAVA, DECsFAVA, t1FAVA, t2FAVA, lefluxFAVA, hefluxFAVA = [], [], [], [], [], [], []
-else:
-    check = False
-
-for i in catalogs:
-    if(i == 'GRB'):
-        import readGCN
-        import numpy as np
-        
-        triggerNSwift, burstTimeSwift, RAsSwift, DECsSwift, ErrorSwift = readGCN.readGCN(RA, DEC, ERR, RA1, RA2, start, stop, 'Swift')
-        triggerNFermi, burstTimeFermi, RAsFermi, DECsFermi, ErrorFermi = readGCN.readGCN(RA, DEC, ERR, RA1, RA2, start, stop, 'Fermi')
-        triggerNIntegral, burstTimeIntegral, RAsIntegral, DECsIntegral, ErrorIntegral = readGCN.readGCN(RA, DEC, ERR, RA1, RA2, start, stop, 'Integral')
-        triggerNMAXI, burstTimeMAXI, RAsMAXI, DECsMAXI, ErrorMAXI = readGCN.readGCN(RA, DEC, ERR, RA1, RA2, start, stop, 'MAXI')
-        
-        triggerNGRB = np.append(triggerNSwift, triggerNFermi)
-        triggerNGRB = np.append(triggerNGRB, triggerNIntegral)
-        triggerNGRB = np.append(triggerNGRB, triggerNMAXI)
-        
-        RAsGRB = np.append(RAsSwift, RAsFermi)
-        RAsGRB = np.append(RAsGRB, RAsIntegral)
-        RAsGRB = np.append(RAsGRB, RAsMAXI)
-        
-        DECsGRB = np.append(DECsSwift, DECsFermi)
-        DECsGRB = np.append(DECsGRB, DECsIntegral)
-        DECsGRB = np.append(DECsGRB, DECsMAXI)
-        
-        ErrorGRB = np.append(ErrorSwift, ErrorFermi)
-        ErrorGRB = np.append(ErrorGRB, ErrorIntegral)
-        ErrorGRB = np.append(ErrorGRB, ErrorMAXI)
-        
-        burstTimeGRB = np.append(burstTimeSwift, burstTimeFermi)
-        burstTimeGRB = np.append(burstTimeGRB, burstTimeIntegral)
-        burstTimeGRB = np.append(burstTimeGRB, burstTimeMAXI)
-        
-        pltRA = np.append(pltRA, RAsGRB)
-        pltDEC = np.append(pltDEC, DECsGRB)
-        pltsize = np.append(pltsize, np.full(len(RAsGRB), 80))
-        labels = np.append(labels, np.full(len(RAsGRB), 'Possible GRB'))
-        markers = np.append(markers, np.full(len(RAsGRB), '+'))
-        
-        check = True
-    
-if(check == False):
-    triggerNGRB, burstTimeGRB, RAsGRB, DECsGRB, ErrorGRB = [], [], [], [], []
-else:
-    check = False
+if "GRB" in catalogs:
+    import readGCN
+    catalog_search_results["GRB"] = readGCN.readGCN(event_parameters)
 
 for i in catalogs:
     if(i == 'SNe'):
@@ -234,17 +186,7 @@ else:
     
 import printout
 
-printout.printout(
-    RA, DEC, ERR, start, stop, names3FGL, RAs3FGL, DECs3FGL, eflux3FGL,
-    pflux3FGL, srctype3FGL, rshift3FGL, names2FHL, RAs2FHL, DECs2FHL, eflux2FHL,
-    pflux2FHL, srctype2FHL, rshift2FHL, names2FAV, RAs2FAV, DECs2FAV, eflux2FAV,
-    pflux2FAV, srctype2FAV, rshift2FAV, namesRX, RAsRX, DECsRX, efluxRX,
-    pfluxRX, srctypeRX, rshiftRX, namesXMM, RAsXMM, DECsXMM, efluxXMM, pfluxXMM,
-    srctypeXMM, rshiftXMM, namesTeGeV, RAsTeGeV, DECsTeGeV, efluxTeGeV,
-    pfluxTeGeV, srctypeTeGeV, rshiftTeGeV, namesFAVA, RAsFAVA, DECsFAVA, t1FAVA,
-    t2FAVA, lefluxFAVA, hefluxFAVA, namesNBG, RAsNBG, DECsNBG, bmagNBG, distNBG,
-    galtypeNBG, triggerNGRB, RAsGRB, DECsGRB, burstTimeGRB, ErrorGRB, namesSNe,
-    RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe)
+printout.printout(event_parameters, catalog_search_results)
 
 from astropy.visualization import astropy_mpl_style
 import matplotlib
@@ -254,8 +196,8 @@ plt.style.use(astropy_mpl_style)
 
 import ploterrcirc
 
-ploterrcirc.ploterrcirc(RA, DEC, ERR, RA1, RA2, DEC1, DEC2)
+ploterrcirc.ploterrcirc(event_parameters)
 
 import plotsrcs
 
-plotsrcs.plotsrcs(pltRA, pltDEC, srctype, pltsize, labels, markers)
+plotsrcs.plotsrcs(catalog_search_results)

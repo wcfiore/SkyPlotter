@@ -2,12 +2,13 @@ import matplotlib.pyplot as plt
 
 # This function plots the error circle of the neutrino event
 
-def ploterrcirc(RA, DEC, ERR, RA1, RA2, DEC1, DEC2):
+def ploterrcirc(params):
 
     fig = plt.figure(1, figsize=(7, 7))
-    plt.axis([RA1, RA2, DEC1, DEC2])
+    plt.axis([params["RA1"], params["RA2"], params["DEC1"], params["DEC2"]])
     ax = fig.add_subplot(1, 1, 1)
-    errcirc = plt.Circle((RA, DEC), radius = ERR, color = 'r', fill = False)
+    errcirc = plt.Circle((params["RA"], params["DEC"]), radius=params["ERR"],
+                         color='r', fill=False)
     ax.add_patch(errcirc)
 
     ticks = ax.get_xticks()
@@ -18,4 +19,4 @@ def ploterrcirc(RA, DEC, ERR, RA1, RA2, DEC1, DEC2):
     plt.xlabel('RA (deg)', fontsize = 14)
     plt.ylabel('DEC (deg)', fontsize = 14)
 
-    plt.plot(RA, DEC, 'x', color = 'r')
+    plt.plot(params["RA"], params["DEC"], 'x', color = 'r')

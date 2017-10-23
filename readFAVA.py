@@ -7,7 +7,7 @@ import stat
 import numpy as np
 import sqlite3
 
-def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, pltsize, labels, markers):
+def readFAVA(parameters):
     URL = 'http://slac.stanford.edu/~kocevski/FAVA/weekly/P8R2_SOURCE_V6/db/fava_flares.db'
     filename = './fava_flares.db'
     
@@ -48,13 +48,12 @@ def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, plt
         heflux = np.append(heflux, row[7])
     
     conn.close()
-    
-    
+
     RAs = RAs.astype('float')
     for i in range(len(RAs)):
-        if(RAs[i] < RA1):
+        if(RAs[i] < parameters["RA1"]):
             RAs[i] += 360
-        elif(RAs[i] > RA2):
+        elif(RAs[i] > parameters["RA2"]):
             RAs[i] -= 360
     
     DECs = DECs.astype('float')
@@ -73,27 +72,52 @@ def readFAVA(RA, DEC, ERR, start, stop, RA1, RA2, DEC1, DEC2, pltRA, pltDEC, plt
     
     # We want to only plot sources that are within the error circle:
     
-    mask = (((RAs - RA) ** 2 + (DECs - DEC) ** 2) <= (ERR ** 2)) & (t2 > start) & (t1 < stop)
-    
-    flareID = flareID[mask]
-    RAs = RAs[mask]
-    DECs = DECs[mask]
-    t1 = t1[mask]
-    t2 = t2[mask]
-    leflux = leflux[mask]
-    heflux = heflux[mask]
+    mask = (
+        (((RAs - parameters["RA"]) ** 2 + (DECs - parameters["DEC"]) ** 2)
+         <= (parameters["ERR"] ** 2))
+        & (t2 > parameters["start"]) & (t1 < parameters["stop"]))
+
     
     names = np.zeros(len(flareID), dtype = 'S30')
     for i in range(len(names)):
         names[i] = 'FAVA Flare ' + flareID[i]
+
+    dt = np.dtype([
+        ('Name', "S50"),
+        ('Flare ID', "S50"),
+        ('RA', np.float),
+        ('Dec', np.float),
+        ('Start Time', "S50"),
+        ('Stop Time', "S50"),
+        ('Low Energy Flux', np.float),
+        ("High Energy Flux", np.float),
+        ("size", np.float)
+    ])
+
+    table = np.zeros_like(names[mask], dtype=dt)
+
+    for i in range(len(names[mask])):
+        new = np.array((names[mask][i], flareID[mask][i],
+                        RAs[mask][i], DECs[mask][i],
+                        t1[mask][i].iso, t2[mask][i].iso,
+                        leflux[mask][i], heflux[mask][i],
+                        60),
+                       dtype=dt)
+        table[i] = new
+
+    table = np.sort(table, order=['Start Time'], axis=0)[::-1].view()
+
+    FAVA_dict = {
+        "data": table,
+        "message_1": 'FAVA FLARES:',
+        "message_2": "Note: RA and DEC are given in degrees. LE Flux is "
+                     "100-800 MeV, HE Flux is 0.8-300 GeV. Fluxes are given "
+                     "in ph/cm^2/s.",
+        "print_mask": ["Name", "RA", "Dec", "Start Time", "Stop Time",
+                       "Low Energy Flux", "High Energy Flux"],
+        "color": 'lightseagreen',
+        "label": "FAVA flare",
+        "marker": "X"
+    }
     
-    pltRA = np.append(pltRA, RAs)
-    pltDEC = np.append(pltDEC, DECs)
-    FAVAsize = np.full(len(RAs), 60)
-    pltsize = np.append(pltsize, FAVAsize)
-    FAVAlabels = np.full(len(RAs), 'FAVA flare')
-    labels = np.append(labels, FAVAlabels)
-    FAVAmarkers = np.full(len(RAs), 'X')
-    markers = np.append(markers, FAVAmarkers)
-    
-    return names, RAs, DECs, t1, t2, leflux, heflux, pltRA, pltDEC, pltsize, labels, markers
+    return FAVA_dict
