@@ -97,13 +97,12 @@ def readFAVA(parameters):
     table = np.zeros_like(names[mask], dtype=dt)
 
     for i in range(len(names[mask])):
-        new = np.array((names[mask][i], flareID[mask][i],
+        table[i] = np.array((names[mask][i], flareID[mask][i],
                         RAs[mask][i], DECs[mask][i],
                         t1[mask][i].iso, t2[mask][i].iso,
                         leflux[mask][i], heflux[mask][i],
                         60),
                        dtype=dt)
-        table[i] = new
 
     table = np.sort(table, order=['Start Time'], axis=0)[::-1].view()
 

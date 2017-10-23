@@ -161,28 +161,16 @@ else:
 
 if "FAVA" in catalogs:
     import readFAVA
-    FAVA_dict = readFAVA.readFAVA(event_parameters)
-    catalog_search_results["FAVA"] = FAVA_dict
+    catalog_search_results["FAVA"] = readFAVA.readFAVA(event_parameters)
 
 if "GRB" in catalogs:
     import readGCN
     catalog_search_results["GRB"] = readGCN.readGCN(event_parameters)
 
-for i in catalogs:
-    if(i == 'SNe'):
-        import readSNe
-        
-        namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe, pltRA, pltDEC, pltsize, markers, labels = \
-        readSNe.readSNe('https://raw.githubusercontent.com/astrocatalogs/supernovae/master/output/catalog.json', \
-                        'catalog.json', RA, DEC, ERR, pltRA, pltDEC, pltsize, markers, labels)
-        
-        check = True
-        
-if(check == False):
-    namesSNe, RAsSNe, DECsSNe, datesSNe, typesSNe, magsSNe, hostsSNe = [], [], [], [], [], [], []
-else:
-    check = False
-    
+if "SNe" in catalogs:
+    import readSNe
+    catalog_search_results["SNe"] = readSNe.readSNe(event_parameters)
+
 import printout
 
 printout.printout(event_parameters, catalog_search_results)

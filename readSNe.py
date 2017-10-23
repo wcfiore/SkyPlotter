@@ -1,24 +1,33 @@
-import os, urllib.request, time, stat, json, pprint
+import os
+import urllib2
+import time
+import stat
+import json
+import pprint
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
 import astropy.units as u
 
-def readSNe(URL, file_name, RA, DEC, ERR, pltRA, pltDEC, pltsize, markers, labels):
-    
-    if(os.path.isfile(file_name) == False):
-        urllib.request.urlretrieve(URL, file_name)
+def readSNe(parameters):
+    URL = 'https://raw.githubusercontent.com/astrocatalogs/supernovae/master/output/catalog.json'
+    filename = 'catalog.json'
+
+    if not os.path.isfile(filename):
+        with open(filename, "wb") as f:
+            f.write(urllib2.urlopen(URL).read())
         
-    db_age = time.time() - os.stat(file_name)[stat.ST_MTIME]
+    db_age = time.time() - os.stat(filename)[stat.ST_MTIME]
     if(db_age > 43200):
-        os.remove(file_name)
-        urllib.request.urlretrieve(URL, file_name)
+        os.remove(filename)
+        with open(filename, "wb") as f:
+            f.write(urllib2.urlopen(URL).read())
         print('***********************************')
         print('Existing Open Supernova Catalog file was out of date. New file downloaded and replaced existing file.')
         print('***********************************')
         print('')
         
-    with open(file_name, 'r') as f:
+    with open(filename, 'r') as f:
         data = json.load(f)
     
     names = np.array([])
@@ -48,7 +57,8 @@ def readSNe(URL, file_name, RA, DEC, ERR, pltRA, pltDEC, pltsize, markers, label
             for k, dt in enumerate(dec_list):
                 dec += float(dt) / (60 ** k)
                 
-            if((RA - ra) ** 2 + (DEC - dec) ** 2 < ERR ** 2):
+            if((parameters["RA"] - ra) ** 2 + (parameters["DEC"] - dec) ** 2 <
+                       parameters["ERR"] ** 2):
                 names = np.append(names, data[i]['name'])
                 RAs = np.append(RAs, ra)
                 DECs = np.append(DECs, dec)
@@ -69,17 +79,45 @@ def readSNe(URL, file_name, RA, DEC, ERR, pltRA, pltDEC, pltsize, markers, label
                 
                 if 'discoverdate' in data[i]:
                     if(len(data[i]['discoverdate'][0]['value']) != 4):
-                        dates = np.append(dates, data[i]['discoverdate'][0]['value'])
+                        dates = np.append(dates, data[i]['discoverdate'][0]['value'].replace('/', '-'))
                     else:
-                        dates = np.append(dates, data[i]['discoverdate'][0]['value'])
+                        dates = np.append(dates, data[i]['discoverdate'][0]['value'].replace('/', '-'))
                 else:
                     dates = np.append(dates, 'nan')
-         
-                
-    pltRA = np.append(pltRA, RAs)
-    pltDEC = np.append(pltDEC, DECs)
-    pltsize = np.append(pltsize, np.full(len(names), 80))
-    markers = np.append(markers, np.full(len(names), 'P'))
-    labels = np.append(labels, np.full(len(names), 'supernova'))
-                
-    return names, RAs, DECs, dates, types, mags, hosts, pltRA, pltDEC, pltsize, markers, labels
+
+    dt = np.dtype([
+        ('Name', "S50"),
+        ('RA', np.float),
+        ('Dec', np.float),
+        ('Discovery Date', "S50"),
+        ('Claimed Type', "S50"),
+        ("Max Apparent Magnitude", np.float),
+        ("Host", "S50"),
+        ("size", np.float)
+    ])
+
+    dates = Time(dates, format="iso")
+    dates.out_subfmt= "date"
+
+    mask = dates > parameters["start"]
+
+    table = np.zeros_like(names[mask], dtype=dt)
+
+    for i in range(len(names[mask])):
+        table[i] = np.array(
+            (names[mask][i], RAs[mask][i], DECs[mask][i], dates[mask][i].iso,
+             types[mask][i], mags[mask][i], hosts[mask][i], 80), dtype=dt)
+
+    table = np.sort(table, order=['Discovery Date'], axis=0)[::-1].view()
+
+    SNe_dict = {
+        "data": table,
+        "message_1": "SUPERNOVAE:",
+        "message_2": 'Note: RA and DEC are given in degrees.',
+        "print_mask": ["Name", "RA", "Dec", "Discovery Date", "Claimed Type",
+                       "Max Apparent Magnitude", "Host"],
+        "color": "brown",
+        "label": "Supernovae",
+        "marker": "P"
+    }
+    return SNe_dict
